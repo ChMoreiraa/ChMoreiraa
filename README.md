@@ -75,7 +75,7 @@ Sou desenvolvedor em formação com foco em **Desenvolvimento Full Stack**, atua
 <a href="https://github.com/ChMoreiraa" target="_blank">
   <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white">
 </a>
-<a href="https://www.linkedin.com/in/carlos-henrique-moreira-gon%C3%A7alves/" target="_blank">
+<a href="[https://www.linkedin.com/in/carlos-henrique-moreira-gon%C3%A7alves/](https://www.linkedin.com/in/carlos-henrique-moreira-gon%C3%A7alves-b2720b323/)" target="_blank">
   <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white">
 </a>
 <a href="mailto:ch.moreiragoncalves26@gmail.com">
