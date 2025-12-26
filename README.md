@@ -51,6 +51,7 @@ Sou desenvolvedor em formação com foco em **Desenvolvimento Full Stack**, atua
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![n8n](https://img.shields.io/badge/n8n-EA4B71?style=for-the-badge&logo=n8n&logoColor=white)
 
+---
 
 ## 🌐 Contato Profissional
 
