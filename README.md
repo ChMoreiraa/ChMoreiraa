@@ -49,26 +49,6 @@ Sou desenvolvedor em formação com foco em **Desenvolvimento Full Stack**, atua
 ![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
----
-
-## 📌 O Que Você Vai Encontrar Aqui
-
-✔️ APIs REST com Node.js, Express e Flask  
-✔️ Aplicações Full Stack com React  
-✔️ Integração com bancos de dados SQL e NoSQL  
-✔️ Projetos versionados e organizados  
-✔️ Estudos práticos voltados ao mercado  
-
----
-
-## 📊 Estatísticas do GitHub
-
-<p align="center">
-  <img height="180em" src="https://github-readme-stats.vercel.app/api?username=ChMoreiraa&show_icons=true&theme=radical" />
-  <img height="180em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=ChMoreiraa&layout=compact&theme=radical" />
-</p>
-
----
 
 ## 🌐 Contato Profissional
 
