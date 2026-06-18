@@ -71,6 +71,16 @@ Atualmente estudo e desenvolvo projetos utilizando Python, Java e Spring Boot, b
 
 ---
 
+## 📊 Estatísticas
+
+<p align="left">
+  <img src="https://github-readme-stats.vercel.app/api?username=ChMoreiraa&show_icons=true&theme=tokyonight&count_private=true" alt="Estatísticas do GitHub de Carlos" height="195" />
+  
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=ChMoreiraa&layout=compact&theme=tokyonight&langs_count=7" alt="Linguagens mais usadas" height="195" />
+</p>
+
+---
+
 ## 🌐 Contato Profissional
 
 <a href="https://github.com/ChMoreiraa" target="_blank">
