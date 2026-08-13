@@ -11,9 +11,9 @@ Atualmente estudo e desenvolvo projetos utilizando Python, Java e Spring Boot, b
 ## 🚀 Perfil Profissional
 
 * 🎓 **Formação:** Graduando em Engenharia de Software
-* 💻 **Área:** Desenvolvimento Backend
-* 🧠 **Foco:** APIs REST, Banco de Dados, Lógica de Negócios e Integração de Sistemas
-* 🎯 **Objetivo:** Atuar profissionalmente como Desenvolvedor Backend e evoluir continuamente na área de Engenharia de Software, contribuindo para a construção de soluções eficientes, seguras e escaláveis.
+* 💻 **Área:** Desenvolvimento Backend / Automações e IA
+* 🧠 **Foco:** APIs REST, Banco de Dados, Lógica de Negócios, Automações, IA e Integração de Sistemas
+* 🎯 **Objetivo:** Atuar profissionalmente como Desenvolvedor Backend, Desenvolvedor de Automações e IA  e evoluir continuamente na área de Engenharia de Software, contribuindo para a construção de soluções eficientes, seguras e escaláveis.
 
 ---
 
@@ -31,6 +31,7 @@ Atualmente estudo e desenvolvo projetos utilizando Python, Java e Spring Boot, b
 
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge\&logo=springboot\&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge\&logo=flask\&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge\&logo=flask\&logoColor=white)
 
 ---
 
@@ -45,12 +46,15 @@ Atualmente estudo e desenvolvo projetos utilizando Python, Java e Spring Boot, b
 
 ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge\&logo=git\&logoColor=white)
 ![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge\&logo=github\&logoColor=white)
+![n8n](https://img.shields.io/badge/n8n-FF6D5A?style=for-the-badge&logo=n8n&logoColor=white)
 
 ---
 
 ## 📚 Atualmente Estudando
 
 * Python
+* Automação de processos
+* IA/Visão computacional
 * Java
 * Spring Boot
 * Desenvolvimento de APIs REST
@@ -64,6 +68,7 @@ Atualmente estudo e desenvolvo projetos utilizando Python, Java e Spring Boot, b
 
 * Engenharia de Software
 * Desenvolvimento Backend
+* Automação e IA
 * Arquitetura de Sistemas
 * APIs REST
 * Banco de Dados
@@ -75,8 +80,8 @@ Atualmente estudo e desenvolvo projetos utilizando Python, Java e Spring Boot, b
 
 <p align="left">
   <img src="https://github-readme-stats.vercel.app/api?username=ChMoreiraa&show_icons=true&theme=tokyonight&count_private=true&hide_rank=true" alt="Estatísticas do GitHub de Carlos" height="195" />
-  
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=ChMoreiraa&layout=compact&theme=tokyonight&langs_count=7" alt="Linguagens mais usadas" height="195" />
+
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=ChMoreiraa&layout=compact&theme=tokyonight&langs_count=7" alt="Linguagens mais usadas por Carlos" height="195" />
 </p>
 
 ---
