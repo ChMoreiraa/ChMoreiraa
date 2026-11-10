@@ -1,7 +1,7 @@
 name: Robô do perfil
 
-# Redesenha o gráfico de contribuições (scripts/robo.mjs) e publica no ramo `output`,
-# de onde o README lê robo-dark.svg e robo-light.svg.
+# Redesenha a batalha arcade sobre o gráfico de contribuições (scripts/arcade.mjs) e
+# publica no ramo `output`, de onde o README lê arcade-dark.svg e arcade-light.svg.
 on:
   push:
     branches: [main]
@@ -26,8 +26,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Desenhar o robô
-        run: node scripts/robo.mjs --usuario "${{ github.repository_owner }}" --saida dist
+      - name: Desenhar a batalha
+        run: node scripts/arcade.mjs --usuario "${{ github.repository_owner }}" --saida dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

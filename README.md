@@ -30,12 +30,20 @@ Engenheiro de IA na **Controller Automotive**, em São José dos Campos/SP. Colo
 
 ### Projetos em destaque
 
-> Repositórios privados da empresa: aqui vai o que eles fazem, sem o código.
+**No trabalho** · repositórios privados da empresa: aqui vai o que eles fazem, sem o código.
 
-| Projeto | O que é | Stack |
-|---|---|---|
-| **Ombuds Guardian** | Plataforma de ouvidoria para empresas de vistoria: canal público de manifestações e denúncias, tratamento com prazos, cobrança e NFS-e, acesso com MFA e escopo por empresa. | Java · Spring Boot 4 · PostgreSQL 18 · Flyway · React · Vite |
-| **VeroCar** | Marketplace de veículos com antifraude, vistoria e compra assistida. | React 19 · TanStack Start · TypeScript · Supabase |
+| | Projeto | O que é | Stack |
+|---|---|---|---|
+| 🛡️ | **Ombuds Guardian** | Plataforma de ouvidoria para empresas de vistoria: canal público de manifestações e denúncias, tratamento com prazos, cobrança e NFS-e, acesso com MFA e escopo por empresa. | Java · Spring Boot 4 · PostgreSQL 18 · Flyway · React · Vite |
+| 🚗 | **VeroCar** | Marketplace de veículos com antifraude, vistoria e compra assistida. | React 19 · TanStack Start · TypeScript · Supabase |
+
+**Pessoais**
+
+| | Projeto | O que é | Stack |
+|---|---|---|---|
+| 🤟 | **[LibrasFlow](https://github.com/ChMoreiraa/LibrasFloww)** | Reconhece o alfabeto de Libras em tempo real pela webcam e forma palavras com feedback na tela. | Python · OpenCV · MediaPipe · scikit-learn |
+| 💈 | **[Barbú](https://github.com/ChMoreiraa/Barbearia_Barbu)** | App de agendamento para barbearias: conta do cliente, escolha de barbeiro e horário, histórico, pontos de fidelidade e lembretes. | Flutter · Dart · Firebase |
+| 📮 | **[CEPFlow](https://github.com/ChMoreiraa/CEPFlow---API)** | API REST que consulta e valida endereços pelo CEP sobre o ViaCEP, sem estado e com testes. [Ver no ar](https://cepflow.onrender.com/docs) | Python · FastAPI · Pydantic · HTTPX · Docker |
 
 ---
 
@@ -61,9 +69,9 @@ Engenheiro de IA na **Controller Automotive**, em São José dos Campos/SP. Colo
 ### Atividade
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/robo-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/robo-light.svg">
-  <img alt="Um robô em pixel voa sobre o meu gráfico de contribuições e dispara um raio que acende cada dia com commit" src="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/robo-dark.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/arcade-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/arcade-light.svg">
+  <img alt="Batalha arcade: cada dia com commit é um invasor roxo no meu gráfico de contribuições, e um robô derruba todos no laser até o chefe final" src="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/arcade-dark.svg">
 </picture>
 
-Um robô passa pelo meu gráfico de contribuições e carrega cada dia com commit. Ele é desenhado por um [script deste repositório](scripts/robo.mjs) e se atualiza sozinho a cada 6 horas. Boa parte do meu trabalho fica em repositórios privados, então o gráfico conta mais do que a lista de repos.
+Cada dia com commit vira um invasor no meu gráfico de contribuições, e um robô derruba todos no laser. O dia com mais commits é o chefe. A batalha é desenhada por um [script deste repositório](scripts/arcade.mjs) e se atualiza sozinha a cada 6 horas. Boa parte do meu trabalho fica em repositórios privados, então o gráfico conta mais do que a lista de repos.
