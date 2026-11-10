@@ -19,7 +19,7 @@
 Engenheiro de IA na **Controller Automotive**, em São José dos Campos/SP. Coloco IA e dados para trabalhar dentro dos sistemas da empresa, do back-end ao agente que revisa o código.
 
 - 🤖 **Agentes de IA no time:** orquestração por etapas, com o modelo e o esforço certos para cada uma, revisão automática de PR que só aprova com o CI verde, e custo sob controle.
-- ☕ **Back-end:** Java e Spring Boot com PostgreSQL, migrations com Flyway e testes de integração com Testcontainers.
+- ☕ **Back-end:** Java e Spring Boot com PostgreSQL, migrations com Flyway e testes de integração com Testcontainers, e Python com FastAPI para APIs e serviços de IA.
 - 📊 **IA e dados:** estudos de viabilidade de produtos com IA, do mercado e da regulação até o custo por consulta.
 - ⚙️ **Automação:** n8n, Node e PowerShell para tirar trabalho repetido das mãos das pessoas.
 - 🎓 **Formação:** Engenharia de Software (em andamento).
@@ -51,7 +51,7 @@ Engenheiro de IA na **Controller Automotive**, em São José dos Campos/SP. Colo
 
 <p align="center">
   <img src="https://skillicons.dev/icons?i=python,java,js,ts&theme=dark" alt="Linguagens" /><br/>
-  <img src="https://skillicons.dev/icons?i=spring,nodejs,fastapi,postgres,supabase&theme=dark" alt="Back-end e bancos" /><br/>
+  <img src="https://skillicons.dev/icons?i=spring,python,fastapi,nodejs,postgres,supabase&theme=dark" alt="Back-end e bancos" /><br/>
   <img src="https://skillicons.dev/icons?i=react,vite,tailwind,html,css&theme=dark" alt="Front-end" /><br/>
   <img src="https://skillicons.dev/icons?i=docker,githubactions,git,github,powershell&theme=dark" alt="Infraestrutura e ferramentas" />
 </p>

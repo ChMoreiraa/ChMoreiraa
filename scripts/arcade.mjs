@@ -55,6 +55,8 @@ const TEMAS = {
     hud: "#ece9f7",
     hudFraco: "#8f8aa8",
     flash: "#ffffff",
+    sombra: "#000000",
+    sombraOp: .55,
   },
   light: {
     vazio: "#ece9f3",
@@ -64,6 +66,8 @@ const TEMAS = {
     hud: "#241f33",
     hudFraco: "#6b6880",
     flash: "#fff7d6",
+    sombra: "#2a1f4d",
+    sombraOp: .28,
   },
 };
 const VERMELHO = "#ff2e4d";
@@ -127,6 +131,17 @@ function anima(paradas, extra = "") {
     .join("");
   css.push(`@keyframes ${nome}{${corpo}}.${nome}{animation:${nome} ${ciclo}s linear infinite${extra}}`);
   return nome;
+}
+
+/** Clareia (f > 0) ou escurece (f < 0) uma cor #rrggbb. */
+function tom(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  return (
+    "#" +
+    [n >> 16, (n >> 8) & 255, n & 255]
+      .map((v) => Math.round(f >= 0 ? v + (255 - v) * f : v * (1 + f)).toString(16).padStart(2, "0"))
+      .join("")
+  );
 }
 
 function aleatorio(semente) {
@@ -198,7 +213,7 @@ function gerarSvg(calendario, tema, hoje) {
   css.length = 0;
   seq = 0;
   const FIM = ciclo - 0.3; // instante em que tudo volta ao começo
-  const camadas = { estrelas: [], celulas: [], olhos: [], flashes: [], lasers: [], explosoes: [], hud: [] };
+  const camadas = { estrelas: [], celulas: [], invasores: [], lasers: [], explosoes: [], hud: [] };
 
   // estrelas no campo de batalha
   const rnd = aleatorio(semanas.length * 7919 + calendario.totalContributions);
@@ -215,43 +230,82 @@ function gerarSvg(calendario, tema, hoje) {
     camadas.estrelas.push(`<rect class="${brilhos[i % 3]}" x="${sx}" y="${sy}" width="${tam}" height="${tam}" fill="${T.estrela}"/>`);
   }
 
-  // grade: o gráfico, sempre visível
-  const tiroDe = new Map();
-  for (const tiro of r.tiros) if (!tiro.chefe || tiro.chefe === 3) tiroDe.set(tiro.alvo, tiro.t + r.voo);
-  semanas.forEach((s, c) =>
-    s.contributionDays.forEach((d) => {
-      const x = MARGEM + c * PASSO;
-      const y = TOPO_GRADE + d.weekday * PASSO;
-      const nivel = NIVEL[d.contributionLevel] ?? 0;
-      const titulo = `<title>${d.date}: ${d.contributionCount}</title>`;
-      if (d.contributionCount === 0 || !nivel) {
-        camadas.celulas.push(`<rect x="${x}" y="${y}" width="${CELULA}" height="${CELULA}" rx="2" fill="${T.vazio}">${titulo}</rect>`);
-        return;
-      }
-      camadas.celulas.push(`<rect x="${x}" y="${y}" width="${CELULA}" height="${CELULA}" rx="2" fill="${T.niveis[nivel]}">${titulo}</rect>`);
-      const alvo = r.tiros.find((t) => t.alvo.c === c && t.alvo.d === d.weekday)?.alvo;
-      const morte = alvo ? tiroDe.get(alvo) : null;
-      if (morte != null) {
-        const cls = anima([[0, "opacity:1"], [morte, "opacity:1"], [morte + 0.05, "opacity:0"], [FIM, "opacity:0"], [FIM + 0.05, "opacity:1"], [ciclo, "opacity:1"]]);
-        camadas.olhos.push(
-          `<g class="${cls}" fill="${T.olho}"><rect x="${x + 2}" y="${y + 3}" width="2" height="2"/><rect x="${x + 6}" y="${y + 3}" width="2" height="2"/>` +
-            `<rect x="${x + 3}" y="${y + 7}" width="4" height="1"/></g>`,
+  // grade: o chão do gráfico e, em cima de cada dia com commit, um invasor em 3D
+  const chave = (c, d) => `${c}-${d}`;
+  const flashDe = new Map(); // "coluna-dia" -> clarões dos tiros que acertam aquele invasor
+  const montarGrade = () => {
+    const morteDe = new Map();
+    for (const tiro of r.tiros) if (!tiro.chefe || tiro.chefe === 3) morteDe.set(chave(tiro.alvo.c, tiro.alvo.d), tiro.t + r.voo);
+    css.push(
+      // a formação marcha de lado em passos, como nos fliperamas, e cada invasor flutua
+      `@keyframes marcha{0%{transform:translateX(0)}25%{transform:translateX(3px)}50%{transform:translateX(0)}75%{transform:translateX(-3px)}}`,
+      `.marcha{animation:marcha 2.4s steps(1,end) infinite}`,
+      `@keyframes boia{from{transform:translateY(0)}to{transform:translateY(-3px)}}`,
+      `.boia{animation:boia 1.1s ease-in-out infinite alternate}`,
+      `.surge{transform-box:fill-box;transform-origin:center}`,
+      `@keyframes alerta{0%,100%{stroke-opacity:1}50%{stroke-opacity:.25}}.alerta{animation:alerta .5s steps(2) infinite}`,
+    );
+    // cada coluna se materializa em sequência no começo do ciclo e some no fim
+    const surgeDe = new Map();
+    const surge = (c) => {
+      if (!surgeDe.has(c)) {
+        const t0 = 0.1 + c * 0.02;
+        surgeDe.set(
+          c,
+          anima([
+            [0, "opacity:0;transform:scale(0)"],
+            [t0, "opacity:0;transform:scale(0)"],
+            [t0 + 0.18, "opacity:1;transform:scale(1.35)"],
+            [t0 + 0.32, "opacity:1;transform:scale(1)"],
+            [FIM - 0.05, "opacity:1;transform:scale(1)"],
+            [FIM + 0.2, "opacity:0;transform:scale(0)"],
+            [ciclo, "opacity:0;transform:scale(0)"],
+          ]),
         );
       }
-    }),
-  );
-
-  // chefe: contorno vermelho pulsando até cair
-  if (r.chefe) {
-    const morte = r.tiros.at(-1).t + r.voo;
-    const x = r.chefe.x - CELULA / 2;
-    const y = r.chefe.y - CELULA / 2;
-    const cls = anima([[0, "opacity:1"], [morte, "opacity:1"], [morte + 0.05, "opacity:0"], [FIM, "opacity:0"], [FIM + 0.05, "opacity:1"], [ciclo, "opacity:1"]]);
-    css.push(`@keyframes alerta{0%,100%{stroke-opacity:1}50%{stroke-opacity:.25}}.alerta{animation:alerta .5s steps(2) infinite}`);
-    camadas.flashes.push(
-      `<g class="${cls}"><rect class="alerta" x="${x - 2.5}" y="${y - 2.5}" width="${CELULA + 5}" height="${CELULA + 5}" rx="3" fill="none" stroke="${VERMELHO}" stroke-width="1.5"/></g>`,
+      return surgeDe.get(c);
+    };
+    const invasores = [];
+    semanas.forEach((s, c) =>
+      s.contributionDays.forEach((d) => {
+        const x = MARGEM + c * PASSO;
+        const y = TOPO_GRADE + d.weekday * PASSO;
+        const nivel = NIVEL[d.contributionLevel] ?? 0;
+        const titulo = `<title>${d.date}: ${d.contributionCount}</title>`;
+        camadas.celulas.push(`<rect x="${x}" y="${y}" width="${CELULA}" height="${CELULA}" rx="2" fill="${T.vazio}">${titulo}</rect>`);
+        if (d.contributionCount > 0 && nivel) invasores.push({ c, dia: d.weekday, x, y, nivel, titulo });
+      }),
     );
-  }
+    // pinta de trás para a frente: a profundidade vai para cima e para a direita
+    invasores.sort((a, b) => a.dia - b.dia || b.c - a.c);
+    for (const v of invasores) {
+      const { x, y, c, nivel } = v;
+      const L = CELULA;
+      const P = [0, 2.5, 3, 3.5, 4.5][nivel];
+      const base = T.niveis[nivel];
+      camadas.celulas.push(`<rect x="${x + 1}" y="${y + 2}" width="${L}" height="${L - 1}" rx="2" fill="${T.sombra}" opacity="${T.sombraOp}"/>`);
+      const morte = morteDe.get(chave(c, v.dia));
+      const olhosCls =
+        morte != null
+          ? anima([[0, "opacity:1"], [morte, "opacity:1"], [morte + 0.05, "opacity:0"], [FIM, "opacity:0"], [FIM + 0.05, "opacity:1"], [ciclo, "opacity:1"]])
+          : "";
+      let chefe = "";
+      if (r.chefe && r.chefe.c === c && r.chefe.d === v.dia) {
+        chefe = `<g class="${olhosCls}"><rect class="alerta" x="${x - 2.5}" y="${y - P - 2.5}" width="${L + P + 5}" height="${L + P + 5}" rx="3" fill="none" stroke="${VERMELHO}" stroke-width="1.5"/></g>`;
+      }
+      camadas.invasores.push(
+        `<g transform="translate(0 -2)"><g class="surge ${surge(c)}"><g class="boia" style="animation-delay:-${((c * 0.13 + v.dia * 0.21) % 1.1).toFixed(2)}s">` +
+          `<polygon points="${x},${y} ${x + P},${y - P} ${x + L + P},${y - P} ${x + L},${y}" fill="${tom(base, 0.38)}"/>` +
+          `<polygon points="${x + L},${y} ${x + L + P},${y - P} ${x + L + P},${y + L - P} ${x + L},${y + L}" fill="${tom(base, -0.38)}"/>` +
+          `<rect x="${x}" y="${y}" width="${L}" height="${L}" rx=".6" fill="${base}">${v.titulo}</rect>` +
+          `<g class="${olhosCls}" fill="${T.olho}"><rect x="${x + 2}" y="${y + 3}" width="2" height="2"/><rect x="${x + 6}" y="${y + 3}" width="2" height="2"/>` +
+          `<rect x="${x + 3}" y="${y + 7}" width="4" height="1"/></g>` +
+          (flashDe.get(chave(c, v.dia)) ?? []).join("") +
+          chefe +
+          `</g></g></g>`,
+      );
+    }
+  };
 
   // tiros, clarões e explosões
   const rndX = aleatorio(4242);
@@ -279,8 +333,10 @@ function gerarSvg(calendario, tema, hoje) {
     );
     // clarão no bloco
     const flash = anima([[0, "opacity:0"], [impacto, "opacity:0"], [impacto + 0.01, "opacity:.95"], [impacto + 0.25, "opacity:0"], [ciclo, "opacity:0"]]);
-    camadas.flashes.push(
-      `<rect class="${flash}" style="opacity:0" x="${alvo.x - CELULA / 2}" y="${alvo.y - CELULA / 2}" width="${CELULA}" height="${CELULA}" rx="2" fill="${T.flash}"/>`,
+    const k = chave(alvo.c, alvo.d);
+    if (!flashDe.has(k)) flashDe.set(k, []);
+    flashDe.get(k).push(
+      `<rect class="${flash}" style="opacity:0" x="${alvo.x - CELULA / 2}" y="${alvo.y - CELULA / 2}" width="${CELULA}" height="${CELULA}" rx="1" fill="${T.flash}"/>`,
     );
     // explosão: partículas que voam para fora e somem
     const grande = tiro.chefe === 3;
@@ -305,8 +361,9 @@ function gerarSvg(calendario, tema, hoje) {
     }
     parts.push(`<circle r="4" fill="${EXPLOSAO[1]}" opacity=".9"/><circle r="2.2" fill="#fff"/>`);
     if (grande) parts.push(`<circle r="9" fill="none" stroke="${EXPLOSAO[3]}" stroke-width="1.5"/>`);
-    camadas.explosoes.push(`<g transform="translate(${alvo.x} ${alvo.y})"><g class="${exp}" style="opacity:0">${parts.join("")}</g></g>`);
+    camadas.explosoes.push(`<g transform="translate(${alvo.x} ${alvo.y - 2})"><g class="${exp}" style="opacity:0">${parts.join("")}</g></g>`);
   });
+  montarGrade();
 
   // HUD: placar que sobe a cada acerto, nome do estágio e vida do chefe
   const fonte = `font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-weight="700"`;
@@ -390,11 +447,10 @@ function gerarSvg(calendario, tema, hoje) {
 <style>${css.join("")}</style>
 <g shape-rendering="crispEdges">${camadas.estrelas.join("")}</g>
 <g shape-rendering="crispEdges">${camadas.celulas.join("")}</g>
-<g shape-rendering="crispEdges">${camadas.olhos.join("")}</g>
-<g>${camadas.flashes.join("")}</g>
+<g class="marcha"><g>${camadas.invasores.join("")}</g>
+<g>${camadas.explosoes.join("")}</g></g>
 <g>${camadas.lasers.join("")}</g>
 ${roboSvg}
-<g>${camadas.explosoes.join("")}</g>
 ${camadas.hud.join("")}
 ${mensagens}
 <g font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="11" fill="${T.hudFraco}">
