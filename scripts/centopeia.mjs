@@ -379,40 +379,44 @@ function desenharSegmento(atraso, corPerna) {
   const traco = `stroke="#0f0d16" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
   const tracoPerna = `stroke="${corPerna}" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
   const tracoGrosso = traco.replace('stroke-width="1.4"', 'stroke-width="1.7"');
-  // pernas em duas cores: coxa roxa, canela e pé em metal
-  const coxa = `stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" fill="none"`;
-  const pernas =
-    `<g class="pernaC" ${d}><path ${coxa} d="M-3 -4.6 L-4.6 -8 M3 -4.6 L4.6 -8"/><path ${tracoPerna} d="M-4.6 -8 L-7 -8.8 M4.6 -8 L7 -8.8"/>` +
-    `<circle cx="-4.6" cy="-8" r=".9" fill="#c4b5fd"/><circle cx="4.6" cy="-8" r=".9" fill="#c4b5fd"/></g>` +
-    `<g class="pernaB" ${d2}><path ${coxa} d="M-3 5.6 L-4.6 9 M3 5.6 L4.6 9"/><path ${tracoPerna} d="M-4.6 9 L-7 9.8 M4.6 9 L7 9.8"/>` +
-    `<circle cx="-4.6" cy="9" r=".9" fill="#c4b5fd"/><circle cx="4.6" cy="9" r=".9" fill="#c4b5fd"/></g>`;
-  // carapaça em 3D: lateral escura embaixo, placa de cima roxa metálica com borda clara
+  // Vista de lado, olhando para a direita (+x). O grupo de fora espelha e gira o desenho conforme a direção.
+  // Pernas embaixo, em duas cores (coxa roxa, canela em metal), dando passos alternados.
+  const coxa = `stroke="#8b5cf6" stroke-width="1.6" stroke-linecap="round" fill="none"`;
+  const perna = (x) =>
+    `<path ${coxa} d="M${x} 2.5 L${x + 1.6} 6.2"/><path ${tracoPerna} d="M${x + 1.6} 6.2 L${x - 0.4} 9.6"/><circle cx="${x + 1.6}" cy="6.2" r=".9" fill="#c4b5fd"/>`;
+  const pernas = `<g class="pernaF" ${d}>${perna(-3.6)}</g><g class="pernaT" ${d2}>${perna(1.6)}</g>`;
+  // segmento: barriga escura, carapaça em domo com borda clara, junta que encaixa no da frente
   const corpo =
-    `<ellipse cy="1.6" rx="7.4" ry="6.4" fill="#0f0d16"/><ellipse cy="1.6" rx="6.6" ry="5.6" fill="#2a1b4d"/>` +
-    `<ellipse rx="7.2" ry="6.2" fill="#0f0d16"/><ellipse rx="6.4" ry="5.4" fill="url(#carapaca)"/>` +
-    `<path d="M-5.6 -1.6 Q0 -6.6 5.6 -1.6" stroke="#ede9fe" stroke-width=".9" fill="none" opacity=".85"/>` +
-    `<path d="M0 -5.2 L0 -3.3" stroke="#ede9fe" stroke-width=".8" opacity=".6"/>` +
-    `<circle cx="-4.6" cy="1.2" r=".6" fill="#ede9fe"/><circle cx="4.6" cy="1.2" r=".6" fill="#ede9fe"/>` +
-    // faixa de luz ciano: um anel em volta do LED, aceso em onda do primeiro ao último segmento
-    `<circle class="faixa" ${d} r="3.6" fill="none" stroke="#22d3ee" stroke-width="1.2" filter="url(#brilho)"/>` +
-    `<circle r="2.5" fill="#3a0d16"/><circle class="led" ${d} r="2" fill="${VERMELHO}" filter="url(#brilho)"/><circle cx="-.7" cy="-.7" r=".6" fill="#ffd6dc"/>`;
-  // cabeça maior: farol na testa, olhos grandes que piscam, mandíbulas e antenas com ponta ciano
+    `<rect x="5.2" y="-1.6" width="3" height="3.6" rx="1" fill="#0f0d16"/><rect x="5.6" y="-1" width="2.4" height="2.4" rx=".8" fill="#5d6577"/>` +
+    `<ellipse cy="2.2" rx="6.9" ry="3.8" fill="#0f0d16"/><ellipse cy="2.2" rx="6.1" ry="3" fill="#2a1b4d"/>` +
+    `<path d="M-7 2.2 Q-7 -7.2 0 -7.2 Q7 -7.2 7 2.2 Z" fill="#0f0d16"/>` +
+    `<path d="M-6.2 2 Q-6.2 -6.4 0 -6.4 Q6.2 -6.4 6.2 2 Z" fill="url(#carapaca)"/>` +
+    `<path d="M-5.2 -2.4 Q-4.4 -5.6 0 -5.7 Q3.6 -5.6 4.8 -3.4" stroke="#ede9fe" stroke-width=".9" fill="none" opacity=".85"/>` +
+    // placas sobrepostas: a borda de trás passa por cima da junta do segmento anterior
+    `<path d="M-6.2 2 Q-6.6 -3.4 -4.4 -5.6" stroke="#4c1d95" stroke-width="1.1" fill="none"/>` +
+    `<path d="M-6 2.4 L6 2.4" stroke="#ede9fe" stroke-width=".6" opacity=".35"/>` +
+    // LED com anel de luz ciano, aceso em onda da cabeça para a cauda
+    `<circle class="faixa" ${d} cy="-1.6" r="3.3" fill="none" stroke="#22d3ee" stroke-width="1.1" filter="url(#brilho)"/>` +
+    `<circle cy="-1.6" r="2.3" fill="#3a0d16"/><circle class="led" ${d} cy="-1.6" r="1.8" fill="${VERMELHO}" filter="url(#brilho)"/><circle cx="-.6" cy="-2.2" r=".5" fill="#ffd6dc"/>`;
+  // cabeça: maior, de lado, com o olho grande à frente, mandíbulas apontando para onde anda,
+  // antenas para a frente e um farol que ilumina adiante
   const cabeca =
-    `<ellipse class="farol" cy="-1" rx="13" ry="11" fill="url(#farol)"/>` +
-    `<g class="antenas" ${d}><path ${traco} d="M-2.6 -7.2 Q-4.6 -11.6 -8.2 -13.2 M2.6 -7.2 Q4.6 -11.6 8.2 -13.2"/>` +
-    `<circle cx="-8.2" cy="-13.2" r="1.6" fill="#22d3ee" filter="url(#brilho)"/><circle cx="8.2" cy="-13.2" r="1.6" fill="#22d3ee" filter="url(#brilho)"/></g>` +
-    `<g class="mandE"><path d="M-3.4 6 Q-5.6 9.4 -2 11.2" stroke="#0f0d16" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M-3.4 6 Q-5.6 9.4 -2 11.2" stroke="#aeb5c3" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="-2" cy="11.2" r=".9" fill="#8b5cf6"/></g>` +
-    `<g class="mandD"><path d="M3.4 6 Q5.6 9.4 2 11.2" stroke="#0f0d16" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M3.4 6 Q5.6 9.4 2 11.2" stroke="#aeb5c3" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="2" cy="11.2" r=".9" fill="#8b5cf6"/></g>` +
-    `<ellipse cy="1.8" rx="9.4" ry="8.4" fill="#0f0d16"/><ellipse cy="1.8" rx="8.6" ry="7.6" fill="#2a1b4d"/>` +
-    `<ellipse rx="9.2" ry="8.2" fill="#0f0d16"/><ellipse rx="8.4" ry="7.4" fill="url(#carapaca)"/>` +
-    `<path d="M-7.4 -2.4 Q0 -9 7.4 -2.4" stroke="#ede9fe" stroke-width="1" fill="none" opacity=".85"/>` +
+    `<path class="farol" d="M9.5 -4.2 L26 -12 L26 7 Z" fill="url(#facho)"/>` +
+    `<g class="antenas" ${d}><path ${traco} d="M3 -7.4 Q7 -12.6 12.6 -12.8 M1 -7.8 Q3.6 -13.4 8.4 -15"/>` +
+    `<circle cx="12.6" cy="-12.8" r="1.6" fill="#22d3ee" filter="url(#brilho)"/><circle cx="8.4" cy="-15" r="1.4" fill="#22d3ee" filter="url(#brilho)"/></g>` +
+    `<g class="mandE"><path d="M7.4 3.2 Q12.4 3.6 11.6 7.6" stroke="#0f0d16" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M7.4 3.2 Q12.4 3.6 11.6 7.6" stroke="#aeb5c3" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="11.6" cy="7.6" r=".9" fill="#8b5cf6"/></g>` +
+    `<ellipse cx="1" cy="2.6" rx="8.6" ry="4.6" fill="#0f0d16"/><ellipse cx="1" cy="2.6" rx="7.8" ry="3.8" fill="#2a1b4d"/>` +
+    `<path d="M-7.6 2.6 Q-7.6 -9 1.6 -9 Q10.2 -9 10.2 1.6 Q10.2 4.6 7 4.6 L-7.6 4.6 Z" fill="#0f0d16"/>` +
+    `<path d="M-6.8 2.4 Q-6.8 -8.2 1.6 -8.2 Q9.4 -8.2 9.4 1.4 Q9.4 3.8 7 3.8 L-6.8 3.8 Z" fill="url(#carapaca)"/>` +
+    `<path d="M-5.6 -2.6 Q-4.4 -7.2 1.6 -7.3 Q6.8 -7.2 8.4 -3.4" stroke="#ede9fe" stroke-width="1" fill="none" opacity=".85"/>` +
+    `<path d="M-6.8 2.4 Q-7.4 -3.6 -5 -6.6" stroke="#4c1d95" stroke-width="1.1" fill="none"/>` +
+    `<g class="mandD"><path d="M6.4 3.6 Q10.6 5.6 8.6 9" stroke="#0f0d16" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M6.4 3.6 Q10.6 5.6 8.6 9" stroke="#aeb5c3" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="8.6" cy="9" r=".9" fill="#8b5cf6"/></g>` +
     // farol na testa
-    `<circle cy="-5" r="1.7" fill="#ecfeff" filter="url(#brilho)"/>` +
-    // olhos grandes de LED
-    `<ellipse cx="-3.5" cy=".6" rx="3" ry="2.5" fill="#0f0d16"/><ellipse cx="3.5" cy=".6" rx="3" ry="2.5" fill="#0f0d16"/>` +
-    `<g class="olhosC"><g filter="url(#brilho)"><ellipse cx="-3.5" cy=".6" rx="2.2" ry="1.8" fill="${VERMELHO}"/><ellipse cx="3.5" cy=".6" rx="2.2" ry="1.8" fill="${VERMELHO}"/></g>` +
-    `<circle cx="-4.2" cy="-.1" r=".7" fill="#ffe4e8"/><circle cx="2.8" cy="-.1" r=".7" fill="#ffe4e8"/></g>` +
-    `<path d="M-2.6 4.6 L2.6 4.6" stroke="#0f0d16" stroke-width="1.1" stroke-linecap="round"/>`;
+    `<circle cx="8.6" cy="-4.4" r="1.6" fill="#ecfeff" filter="url(#brilho)"/>` +
+    // olho grande de LED, que pisca
+    `<ellipse cx="4.6" cy="-.4" rx="3.4" ry="2.9" fill="#0f0d16"/>` +
+    `<g class="olhosC"><ellipse cx="4.8" cy="-.4" rx="2.6" ry="2.1" fill="${VERMELHO}" filter="url(#brilho)"/><circle cx="4" cy="-1.2" r=".8" fill="#ffe4e8"/></g>` +
+    `<path d="M-3.2 -3.6 Q-1.6 -5 .4 -4.4" stroke="#ede9fe" stroke-width=".7" fill="none" opacity=".6"/>`;
   return { pernas, corpo, cabeca, d };
 }
 
@@ -484,8 +488,9 @@ function gerarSvg(calendario, tema, hoje) {
   // centopeia
   css.push(
     // pernas andam em onda (cada segmento atrasado em relação ao da frente) e o corpo ondula
-    `@keyframes pernaC{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}.pernaC{animation:pernaC .4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}`,
-    `@keyframes pernaB{from{transform:rotate(16deg)}to{transform:rotate(-16deg)}}.pernaB{animation:pernaB .4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 0%}`,
+    // passos: a perna da frente e a de trás balançam em fases opostas, presas no corpo
+    `@keyframes pernaF{from{transform:rotate(-22deg)}to{transform:rotate(18deg)}}.pernaF{animation:pernaF .36s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 0%}`,
+    `@keyframes pernaT{from{transform:rotate(18deg)}to{transform:rotate(-22deg)}}.pernaT{animation:pernaT .36s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 0%}`,
     `@keyframes ondula{from{transform:translateY(-1.2px)}to{transform:translateY(1.2px)}}.ondula{animation:ondula .8s ease-in-out infinite alternate}`,
     `@keyframes led{from{opacity:.5}to{opacity:1}}.led{animation:led .5s ease-in-out infinite alternate}`,
     // a luz ciano corre da cabeça para a cauda: cada segmento acende um pouco depois do anterior
@@ -516,7 +521,23 @@ function gerarSvg(calendario, tema, hoje) {
       const cls = s.cabecaDesde === 0 ? "" : anima([[0, "opacity:0"], [vira, "opacity:0"], [vira + 0.01, "opacity:1"], [ciclo - 0.01, "opacity:1"], [ciclo, "opacity:0"]]);
       cabeca = `<g class="${cls}" style="opacity:${s.cabecaDesde === 0 ? 1 : 0}">${sprite.cabeca}</g>`;
     }
-    camadas.segmentos.unshift(`<g class="${mov}"><g class="${vida}"><g class="ondula" ${sprite.d}>${sprite.pernas}${sprite.corpo}${cabeca}</g></g></g>`);
+    // direção de cada passo: andando de lado espelha (direita = 1, esquerda = -1); subindo ou descendo gira 90°.
+    // A troca acontece durante o passo, então a cabeça vira na curva e cada segmento vira depois dela.
+    const orient = (face, graus) => `transform:scaleX(${face}) rotate(${graus}deg)`;
+    let face = 1, graus = 0;
+    const virar = [[0, orient(1, 0)]];
+    for (let i = 1; i < uteis.length; i++) {
+      const dx = uteis[i][1] - uteis[i - 1][1], dy = uteis[i][2] - uteis[i - 1][2];
+      let nf = face, ng = graus;
+      if (dx) { nf = Math.sign(dx); ng = 0; } else if (dy) ng = dy > 0 ? 90 : -90;
+      if (nf !== face || ng !== graus) {
+        virar.push([tempo(i - 1), orient(face, graus)], [tempo(i - 1) + TICK * 0.6, orient(nf, ng)]);
+        face = nf; graus = ng;
+      }
+    }
+    virar.push([ciclo - 0.01, orient(face, graus)], [ciclo, orient(1, 0)]);
+    const giro = anima(virar);
+    camadas.segmentos.unshift(`<g class="${mov}"><g class="${vida}"><g class="${giro}"><g class="ondula" ${sprite.d}>${sprite.pernas}${sprite.corpo}${cabeca}</g></g></g></g>`);
   }
 
   // tiros e explosões
@@ -700,6 +721,7 @@ ${rifle.base}<g class="${cargaCls}" filter="url(#brilho)">${rifle.bobina}</g><g 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${largura}" height="${ALTURA}" viewBox="0 0 ${largura} ${ALTURA}" role="img" aria-label="Centopeia mecânica descendo pelo gráfico de contribuições de ${usuario ?? "GitHub"} enquanto um robô atira nela: ${total} contribuições no último ano">
 <defs>
 <linearGradient id="carapaca" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ddd6fe"/><stop offset=".35" stop-color="#a78bfa"/><stop offset=".75" stop-color="#6d28d9"/><stop offset="1" stop-color="#3b1a7a"/></linearGradient>
+<linearGradient id="facho" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a5f3fc" stop-opacity="${tema === "dark" ? 0.55 : 0.4}"/><stop offset="1" stop-color="#67e8f9" stop-opacity="0"/></linearGradient>
 <radialGradient id="farol"><stop offset="0" stop-color="#67e8f9" stop-opacity="${tema === "dark" ? 0.35 : 0.25}"/><stop offset="1" stop-color="#67e8f9" stop-opacity="0"/></radialGradient>
 <linearGradient id="casco" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f6fa"/><stop offset=".45" stop-color="#a9b0bf"/><stop offset="1" stop-color="#4b5263"/></linearGradient>
 <radialGradient id="halo"><stop offset="0" stop-color="#8b5cf6" stop-opacity="${tema === "dark" ? 0.35 : 0.22}"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></radialGradient>
