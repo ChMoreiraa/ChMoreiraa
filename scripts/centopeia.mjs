@@ -118,7 +118,7 @@ const cy = (l) => TOPO_GRADE + l * PASSO + CELULA / 2;
 // ---------- tempo ----------
 
 const INICIO = 1.0; // antes disso: READY? e os cubos se materializando
-const TICK = 0.065; // segundos por casa andada
+const TICK = 0.11; // segundos por casa andada
 const VOO_LASER = 0.06;
 const RECARGA = 7; // ticks entre tiros
 const TAMANHO = 16; // segmentos da centopeia
