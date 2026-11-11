@@ -180,7 +180,6 @@ const MARGEM = 16;
 const TOPO_GRADE = 36;
 const LINHAS_GRADE = 7;
 const LINHA_FUNDO = 10; // a centopeia desce até aqui, já fora da grade, na zona do robô
-const ZONA_TOPO = LINHAS_GRADE; // na zona do robô ela vai e volta entre ZONA_TOPO e LINHA_FUNDO
 const BASE_GRADE = TOPO_GRADE + LINHAS_GRADE * PASSO - (PASSO - CELULA);
 const ROBO_Y = TOPO_GRADE + (LINHA_FUNDO + 1) * PASSO + 2;
 const ALTURA = ROBO_Y + ALTURA_ROBO + 28;
@@ -199,9 +198,9 @@ function bocaDoCano(px, graus) {
 const INICIO = 1.0; // antes disso: READY? e os cubos se materializando
 const TICK = 0.16; // segundos por casa andada
 const VOO_LASER = 0.06;
-const RECARGA = 7; // ticks entre tiros
-const TAMANHO = 16; // segmentos da centopeia
-const MAX_TICKS = 520;
+const RECARGA = 6; // ticks entre tiros
+const TAMANHO = 28; // segmentos da centopeia: uma bem comprida, que o robô vai picando
+const MAX_TICKS = 1100;
 
 // ---------- utilidades de animação ----------
 
@@ -256,7 +255,8 @@ function simular(semanas) {
     morte: null,
     cabecaDesde: i === 0 ? 0 : null,
   }));
-  let centopeias = [{ corpo: segs.map((s) => s.id), dir: 1, vdir: 1 }];
+  // `fundo` é a linha mais baixa que cada pedaço visita: a maioria passeia só entre os commits (0 a 6)
+  let centopeias = [{ corpo: segs.map((s) => s.id), dir: 1, vdir: 1, fundo: LINHAS_GRADE - 1 }];
   const tiros = [];
   const robo = [[Math.floor(colunas / 2), 0]]; // [coluna, tick]
   let roboCol = Math.floor(colunas / 2);
@@ -264,6 +264,7 @@ function simular(semanas) {
   let tick = 0;
   let modo = "persegue";
   let semAlvo = 0;
+  let maxPedacos = 1;
   const sorte = aleatorio(colunas * 131 + obstaculo.size);
 
   const ondeEsta = (id) => segs[id].pos.at(-1);
@@ -280,8 +281,8 @@ function simular(semanas) {
         prox = [hc + cp.dir, hl];
       } else {
         let nl = hl + cp.vdir;
-        if (nl > LINHA_FUNDO) { cp.vdir = -1; nl = hl - 1; }
-        if (nl < ZONA_TOPO && cp.vdir === -1 && hl >= ZONA_TOPO) { cp.vdir = 1; nl = hl + 1; }
+        if (nl > cp.fundo) { cp.vdir = -1; nl = hl - 1; }
+        if (nl < 0) { cp.vdir = 1; nl = hl + 1; }
         prox = [hc, nl];
         cp.dir = -cp.dir;
       }
@@ -312,6 +313,10 @@ function simular(semanas) {
       }
       return null;
     };
+    // quanto mais no meio de um pedaço comprido, mais o tiro parte a centopeia: é o que ele prefere
+    const indice = new Map();
+    centopeias.forEach((cp) => cp.corpo.forEach((id, i) => indice.set(id, Math.min(i, cp.corpo.length - 1 - i))));
+    const valor = (id) => indice.get(id) ?? 0;
     const tirosPossiveis = vivos.map(linhaDeTiro).filter(Boolean);
     const retos = tirosPossiveis.filter((t) => Math.abs(t.graus) < 4);
     if (modo === "persegue" && tirosPossiveis.length && sorte() < 0.06) modo = "segura";
@@ -321,7 +326,8 @@ function simular(semanas) {
     }
     if (modo === "persegue") {
       if (vivos.length) {
-        const alvo = vivos.reduce((m, v) => (v.p[1] > m.p[1] || (v.p[1] === m.p[1] && Math.abs(v.p[0] - roboCol) < Math.abs(m.p[0] - roboCol)) ? v : m));
+        const melhor = (a, b) => valor(a.id) - valor(b.id) || a.p[1] - b.p[1] || Math.abs(b.p[0] - roboCol) - Math.abs(a.p[0] - roboCol);
+        const alvo = vivos.reduce((m, v) => (melhor(v, m) > 0 ? v : m));
         roboCol += Math.max(-1, Math.min(1, alvo.p[0] - roboCol));
       }
     }
@@ -329,8 +335,8 @@ function simular(semanas) {
     if (recarga > 0) recarga--;
     const opcoes = modo === "persegue" ? retos : tirosPossiveis;
     if (recarga === 0 && opcoes.length) {
-      // prefere o mais baixo (mais perto do robô)
-      const tiro = opcoes.reduce((m, t) => (t.impacto[1] > m.impacto[1] ? t : m));
+      // prefere o que mais parte a centopeia; empate, o mais baixo
+      const tiro = opcoes.reduce((m, t) => (valor(t.atingido.id) > valor(m.atingido.id) || (valor(t.atingido.id) === valor(m.atingido.id) && t.impacto[1] > m.impacto[1]) ? t : m));
       const atingido = tiro.atingido;
       recarga = RECARGA;
       if (sorte() < 0.5) modo = modo === "persegue" ? "segura" : "persegue";
@@ -343,18 +349,22 @@ function simular(semanas) {
         if (k === -1) { novas.push(cp); continue; }
         const frente = cp.corpo.slice(0, k);
         const tras = cp.corpo.slice(k + 1);
-        if (frente.length) novas.push({ corpo: frente, dir: cp.dir, vdir: cp.vdir });
+        if (frente.length) novas.push({ corpo: frente, dir: cp.dir, vdir: cp.vdir, fundo: cp.fundo });
         if (tras.length) {
           const [c1, l1] = ondeEsta(tras[0]);
           const dir = l1 === atingido.p[1] && c1 !== atingido.p[0] ? Math.sign(atingido.p[0] - c1) : cp.dir;
           if (segs[tras[0]].cabecaDesde == null) segs[tras[0]].cabecaDesde = tick;
-          novas.push({ corpo: tras, dir, vdir: cp.vdir });
+          // de vez em quando um pedaço novo desce até a zona do robô
+          const fundo = sorte() < 0.25 ? LINHA_FUNDO : LINHAS_GRADE - 1;
+          novas.push({ corpo: tras, dir, vdir: sorte() < 0.5 ? 1 : -1, fundo });
         }
       }
       centopeias = novas;
+      maxPedacos = Math.max(maxPedacos, centopeias.length);
       tiros.push({ tick, graus: tiro.graus, boca: tiro.boca, impacto: tiro.impacto, cabeca: segs[atingido.id].cabecaDesde != null });
     }
   }
+  if (args.debug) console.error(`ticks=${tick} tiros=${tiros.length} vivos=${centopeias.reduce((n, cp) => n + cp.corpo.length, 0)} max_pedacos=${maxPedacos}`);
   return { segs, tiros, robo, fim: tick };
 }
 
