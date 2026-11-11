@@ -171,6 +171,7 @@ const PIVO = { x: 21 * PX, y: 21.5 * PX }; // onde a mão direita segura o rifle
 const RIFLE_PIVO = { x: 4 * PX, y: 21.5 * PX }; // o mesmo ponto, no desenho do rifle
 const COMPRIMENTO_RIFLE = RIFLE_PIVO.y; // do eixo até a boca do cano
 const ANGULO_MAX = 58; // graus, para cada lado
+const COL_MIN_ROBO = 2; // nas colunas 0 e 1 o corpo do robô sairia pela esquerda
 
 // ---------- geometria ----------
 
@@ -329,6 +330,7 @@ function simular(semanas) {
         const melhor = (a, b) => valor(a.id) - valor(b.id) || a.p[1] - b.p[1] || Math.abs(b.p[0] - roboCol) - Math.abs(a.p[0] - roboCol);
         const alvo = vivos.reduce((m, v) => (melhor(v, m) > 0 ? v : m));
         roboCol += Math.max(-1, Math.min(1, alvo.p[0] - roboCol));
+        roboCol = Math.max(COL_MIN_ROBO, Math.min(colunas - 1, roboCol)); // não deixa o robô sair da tela
       }
     }
     robo.push([roboCol, tick]);
@@ -377,31 +379,40 @@ function desenharSegmento(atraso, corPerna) {
   const traco = `stroke="#0f0d16" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
   const tracoPerna = `stroke="${corPerna}" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
   const tracoGrosso = traco.replace('stroke-width="1.4"', 'stroke-width="1.7"');
+  // pernas em duas cores: coxa roxa, canela e pé em metal
+  const coxa = `stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" fill="none"`;
   const pernas =
-    `<g class="pernaC" ${d}><path ${tracoPerna} d="M-2.5 -4.5 L-4.2 -8.2 L-6.4 -8.8 M2.5 -4.5 L4.2 -8.2 L6.4 -8.8"/>` +
-    `<circle cx="-4.2" cy="-8.2" r=".7" fill="#9aa2b3"/><circle cx="4.2" cy="-8.2" r=".7" fill="#9aa2b3"/></g>` +
-    `<g class="pernaB" ${d2}><path ${tracoPerna} d="M-2.5 4.5 L-4.2 8.2 L-6.4 8.8 M2.5 4.5 L4.2 8.2 L6.4 8.8"/>` +
-    `<circle cx="-4.2" cy="8.2" r=".7" fill="#9aa2b3"/><circle cx="4.2" cy="8.2" r=".7" fill="#9aa2b3"/></g>`;
+    `<g class="pernaC" ${d}><path ${coxa} d="M-3 -4.6 L-4.6 -8 M3 -4.6 L4.6 -8"/><path ${tracoPerna} d="M-4.6 -8 L-7 -8.8 M4.6 -8 L7 -8.8"/>` +
+    `<circle cx="-4.6" cy="-8" r=".9" fill="#c4b5fd"/><circle cx="4.6" cy="-8" r=".9" fill="#c4b5fd"/></g>` +
+    `<g class="pernaB" ${d2}><path ${coxa} d="M-3 5.6 L-4.6 9 M3 5.6 L4.6 9"/><path ${tracoPerna} d="M-4.6 9 L-7 9.8 M4.6 9 L7 9.8"/>` +
+    `<circle cx="-4.6" cy="9" r=".9" fill="#c4b5fd"/><circle cx="4.6" cy="9" r=".9" fill="#c4b5fd"/></g>`;
+  // carapaça em 3D: lateral escura embaixo, placa de cima roxa metálica com borda clara
   const corpo =
-    `<ellipse rx="6.7" ry="6.1" fill="#0f0d16"/><ellipse rx="5.9" ry="5.3" fill="url(#casco)"/>` +
-    // placas sobrepostas: duas juntas curvas e os rebites
-    `<path d="M-2.4 -5.1 Q-3.7 0 -2.4 5.1 M2.4 -5.1 Q3.7 0 2.4 5.1" stroke="#0f0d16" stroke-opacity=".4" stroke-width=".9" fill="none"/>` +
-    `<circle cx="-4.3" cy="-1.6" r=".55" fill="#f6f8fc"/><circle cx="4.3" cy="-1.6" r=".55" fill="#f6f8fc"/><circle cx="-4.3" cy="1.8" r=".55" fill="#3b4150"/><circle cx="4.3" cy="1.8" r=".55" fill="#3b4150"/>` +
-    `<ellipse cx="-1.4" cy="-3.3" rx="2.6" ry="1" fill="#ffffff" opacity=".75"/>` +
-    // LED com brilho
-    `<circle r="2.6" fill="#3a0d16"/><circle class="led" ${d} r="1.8" fill="${VERMELHO}" filter="url(#brilho)"/><circle cx="-.6" cy="-.6" r=".55" fill="#ffd6dc"/>`;
+    `<ellipse cy="1.6" rx="7.4" ry="6.4" fill="#0f0d16"/><ellipse cy="1.6" rx="6.6" ry="5.6" fill="#2a1b4d"/>` +
+    `<ellipse rx="7.2" ry="6.2" fill="#0f0d16"/><ellipse rx="6.4" ry="5.4" fill="url(#carapaca)"/>` +
+    `<path d="M-5.6 -1.6 Q0 -6.6 5.6 -1.6" stroke="#ede9fe" stroke-width=".9" fill="none" opacity=".85"/>` +
+    `<path d="M0 -5.2 L0 -3.3" stroke="#ede9fe" stroke-width=".8" opacity=".6"/>` +
+    `<circle cx="-4.6" cy="1.2" r=".6" fill="#ede9fe"/><circle cx="4.6" cy="1.2" r=".6" fill="#ede9fe"/>` +
+    // faixa de luz ciano: um anel em volta do LED, aceso em onda do primeiro ao último segmento
+    `<circle class="faixa" ${d} r="3.6" fill="none" stroke="#22d3ee" stroke-width="1.2" filter="url(#brilho)"/>` +
+    `<circle r="2.5" fill="#3a0d16"/><circle class="led" ${d} r="2" fill="${VERMELHO}" filter="url(#brilho)"/><circle cx="-.7" cy="-.7" r=".6" fill="#ffd6dc"/>`;
+  // cabeça maior: farol na testa, olhos grandes que piscam, mandíbulas e antenas com ponta ciano
   const cabeca =
-    `<g class="antenas" ${d}><path ${traco} d="M-2 -5.6 Q-3.6 -9.4 -6.6 -10.8 M2 -5.6 Q3.6 -9.4 6.6 -10.8"/>` +
-    `<circle cx="-6.6" cy="-10.8" r="1.4" fill="${VERMELHO}" filter="url(#brilho)"/><circle cx="6.6" cy="-10.8" r="1.4" fill="${VERMELHO}" filter="url(#brilho)"/></g>` +
-    `<g class="mandE"><path ${tracoGrosso} d="M-2.6 4.6 Q-4 7.6 -1.3 8.9"/></g>` +
-    `<g class="mandD"><path ${tracoGrosso} d="M2.6 4.6 Q4 7.6 1.3 8.9"/></g>` +
-    `<ellipse rx="7.5" ry="6.9" fill="#0f0d16"/><ellipse rx="6.7" ry="6.1" fill="url(#casco)"/>` +
-    `<path d="M-5.3 -2.2 Q0 -7 5.3 -2.2 L4.2 -.9 Q0 -4.6 -4.2 -.9 Z" fill="#8b5cf6"/><path d="M-3.6 -3.3 Q0 -5.6 3.6 -3.3" stroke="#c4b5fd" stroke-width=".7" fill="none"/>` +
-    `<ellipse cx="-2.7" cy=".7" rx="1.9" ry="1.4" fill="#3a0d16"/><ellipse cx="2.7" cy=".7" rx="1.9" ry="1.4" fill="#3a0d16"/>` +
-    `<g class="led" filter="url(#brilho)"><ellipse cx="-2.7" cy=".7" rx="1.4" ry="1" fill="${VERMELHO}"/><ellipse cx="2.7" cy=".7" rx="1.4" ry="1" fill="${VERMELHO}"/></g>` +
-    `<circle cx="-3.1" cy=".3" r=".45" fill="#ffd6dc"/><circle cx="2.3" cy=".3" r=".45" fill="#ffd6dc"/>` +
-    `<ellipse cx="-2" cy="-4.4" rx="2.4" ry=".8" fill="#ffffff" opacity=".6"/>` +
-    `<path d="M-2.4 3.6 L2.4 3.6" stroke="#0f0d16" stroke-opacity=".6" stroke-width=".9"/>`;
+    `<ellipse class="farol" cy="-1" rx="13" ry="11" fill="url(#farol)"/>` +
+    `<g class="antenas" ${d}><path ${traco} d="M-2.6 -7.2 Q-4.6 -11.6 -8.2 -13.2 M2.6 -7.2 Q4.6 -11.6 8.2 -13.2"/>` +
+    `<circle cx="-8.2" cy="-13.2" r="1.6" fill="#22d3ee" filter="url(#brilho)"/><circle cx="8.2" cy="-13.2" r="1.6" fill="#22d3ee" filter="url(#brilho)"/></g>` +
+    `<g class="mandE"><path d="M-3.4 6 Q-5.6 9.4 -2 11.2" stroke="#0f0d16" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M-3.4 6 Q-5.6 9.4 -2 11.2" stroke="#aeb5c3" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="-2" cy="11.2" r=".9" fill="#8b5cf6"/></g>` +
+    `<g class="mandD"><path d="M3.4 6 Q5.6 9.4 2 11.2" stroke="#0f0d16" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M3.4 6 Q5.6 9.4 2 11.2" stroke="#aeb5c3" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="2" cy="11.2" r=".9" fill="#8b5cf6"/></g>` +
+    `<ellipse cy="1.8" rx="9.4" ry="8.4" fill="#0f0d16"/><ellipse cy="1.8" rx="8.6" ry="7.6" fill="#2a1b4d"/>` +
+    `<ellipse rx="9.2" ry="8.2" fill="#0f0d16"/><ellipse rx="8.4" ry="7.4" fill="url(#carapaca)"/>` +
+    `<path d="M-7.4 -2.4 Q0 -9 7.4 -2.4" stroke="#ede9fe" stroke-width="1" fill="none" opacity=".85"/>` +
+    // farol na testa
+    `<circle cy="-5" r="1.7" fill="#ecfeff" filter="url(#brilho)"/>` +
+    // olhos grandes de LED
+    `<ellipse cx="-3.5" cy=".6" rx="3" ry="2.5" fill="#0f0d16"/><ellipse cx="3.5" cy=".6" rx="3" ry="2.5" fill="#0f0d16"/>` +
+    `<g class="olhosC"><g filter="url(#brilho)"><ellipse cx="-3.5" cy=".6" rx="2.2" ry="1.8" fill="${VERMELHO}"/><ellipse cx="3.5" cy=".6" rx="2.2" ry="1.8" fill="${VERMELHO}"/></g>` +
+    `<circle cx="-4.2" cy="-.1" r=".7" fill="#ffe4e8"/><circle cx="2.8" cy="-.1" r=".7" fill="#ffe4e8"/></g>` +
+    `<path d="M-2.6 4.6 L2.6 4.6" stroke="#0f0d16" stroke-width="1.1" stroke-linecap="round"/>`;
   return { pernas, corpo, cabeca, d };
 }
 
@@ -477,6 +488,10 @@ function gerarSvg(calendario, tema, hoje) {
     `@keyframes pernaB{from{transform:rotate(16deg)}to{transform:rotate(-16deg)}}.pernaB{animation:pernaB .4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 0%}`,
     `@keyframes ondula{from{transform:translateY(-1.2px)}to{transform:translateY(1.2px)}}.ondula{animation:ondula .8s ease-in-out infinite alternate}`,
     `@keyframes led{from{opacity:.5}to{opacity:1}}.led{animation:led .5s ease-in-out infinite alternate}`,
+    // a luz ciano corre da cabeça para a cauda: cada segmento acende um pouco depois do anterior
+    `@keyframes faixa{0%,100%{stroke-opacity:.4}12%{stroke-opacity:1}30%{stroke-opacity:.4}}.faixa{animation:faixa 1.4s linear infinite}`,
+    `@keyframes farol{from{opacity:.55}to{opacity:1}}.farol{animation:farol 1.1s ease-in-out infinite alternate}`,
+    `@keyframes olhosC{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}}.olhosC{animation:olhosC 3.1s infinite;transform-box:fill-box;transform-origin:center}`,
     `@keyframes antenas{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}.antenas{animation:antenas .7s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}`,
     `@keyframes mandE{from{transform:rotate(0)}to{transform:rotate(22deg)}}.mandE{animation:mandE .3s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:100% 0%}`,
     `@keyframes mandD{from{transform:rotate(0)}to{transform:rotate(-22deg)}}.mandD{animation:mandD .3s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:0% 0%}`,
@@ -684,6 +699,8 @@ ${rifle.base}<g class="${cargaCls}" filter="url(#brilho)">${rifle.bobina}</g><g 
   const data = hoje.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${largura}" height="${ALTURA}" viewBox="0 0 ${largura} ${ALTURA}" role="img" aria-label="Centopeia mecânica descendo pelo gráfico de contribuições de ${usuario ?? "GitHub"} enquanto um robô atira nela: ${total} contribuições no último ano">
 <defs>
+<linearGradient id="carapaca" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ddd6fe"/><stop offset=".35" stop-color="#a78bfa"/><stop offset=".75" stop-color="#6d28d9"/><stop offset="1" stop-color="#3b1a7a"/></linearGradient>
+<radialGradient id="farol"><stop offset="0" stop-color="#67e8f9" stop-opacity="${tema === "dark" ? 0.35 : 0.25}"/><stop offset="1" stop-color="#67e8f9" stop-opacity="0"/></radialGradient>
 <linearGradient id="casco" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f6fa"/><stop offset=".45" stop-color="#a9b0bf"/><stop offset="1" stop-color="#4b5263"/></linearGradient>
 <radialGradient id="halo"><stop offset="0" stop-color="#8b5cf6" stop-opacity="${tema === "dark" ? 0.35 : 0.22}"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></radialGradient>
 <filter id="brilho" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1.1" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
