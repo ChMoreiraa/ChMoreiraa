@@ -1,7 +1,7 @@
 name: Robô do perfil
 
-# Redesenha a batalha arcade sobre o gráfico de contribuições (scripts/arcade.mjs) e
-# publica no ramo `output`, de onde o README lê arcade-dark.svg e arcade-light.svg.
+# Redesenha a centopeia mecânica sobre o gráfico de contribuições (scripts/centopeia.mjs)
+# e publica no ramo `output`, de onde o README lê centopeia-dark.svg e centopeia-light.svg.
 on:
   push:
     branches: [main]
@@ -26,8 +26,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Desenhar a batalha
-        run: node scripts/arcade.mjs --usuario "${{ github.repository_owner }}" --saida dist
+      - name: Desenhar a centopeia
+        run: node scripts/centopeia.mjs --usuario "${{ github.repository_owner }}" --saida dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
