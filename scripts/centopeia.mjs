@@ -57,6 +57,7 @@ const TEMAS = {
     sombra: "#000000",
     sombraOp: 0.55,
     linhaZona: "#2b2640",
+    perna: "#aeb5c3",
   },
   light: {
     vazio: "#ece9f3",
@@ -67,38 +68,49 @@ const TEMAS = {
     sombra: "#2a1f4d",
     sombraOp: 0.28,
     linhaZona: "#ddd6ee",
+    perna: "#4b5263",
   },
 };
 const VERMELHO = "#ff2e4d";
 const EXPLOSAO = ["#fff3b0", "#ffd166", "#ffb703", "#ff8c1a", "#ff5400", "#e63946"];
 
-// Robô original em pixel (16 x 18), com o canhão no braço direito apontado para cima.
+// Robô original em pixel (24 x 26): antena, visor com dois olhos, núcleo de energia no peito,
+// jetpack embaixo e o canhão no braço direito, apontado para cima.
 const ROBO = [
-  "............KcK.",
-  "............KCK.",
-  "...KKKKKK...KCK.",
-  "..KLLLMMMK..KCK.",
-  ".KLLMMMMMDK.KCK.",
-  ".KLKKKKKKDK.KCK.",
-  ".KKEeKKeEKK.KMK.",
-  ".KLKKKKKKDK.KMK.",
-  ".KMMMMMMMDK.KMK.",
-  "..KKKKKKKK..KMK.",
-  ".KKMMKKMMKKKKMK.",
-  "KMLMMAAMMMDMMDK.",
-  "KMLMAAAAMMDKKK..",
-  "KDMMMAAMMMDK....",
-  ".KKDMMMMDKK.....",
-  "...KMK.KMK......",
-  "...KFK.KFK......",
-  "....F...F.......",
+  ".......K..........KccK..",
+  ".......P..........KGGK..",
+  ".......K..........KGGK..",
+  "....KKKKKKKK......KGGK..",
+  "...KWWLLLLLMK.....KMLK..",
+  "..KWLLLLLLLMDK....KMLK..",
+  "..KLLKKKKKKKDK....KMLK..",
+  "..KLKVEeVVEeVKK...KMLK..",
+  "..KLKVEEVVEEVKK...KMLK..",
+  "..KMLKKKKKKKDK....KMLK..",
+  "..KMLLLPPLLLDK....KDMK..",
+  "...KDMMMMMMDK.....KDMK..",
+  "....KKKKKKKK......KDMK..",
+  ".....KDMMDK.......KDMK..",
+  "..KKKKKKKKKKKK..KKKMMK..",
+  ".KWLLLLKaaKLLMKKMMMMDK..",
+  ".KLLLLKaAAaKLMDDDDDDK...",
+  ".KLLMMKAAAAKMMDKKKKK....",
+  ".KLMMMKaAAaKMDDK........",
+  ".KMMMMMKaaKMMDK.........",
+  "..KDMMMMMMMMDK..........",
+  "...KKDDDDDDKK...........",
+  "....KGGK..KGGK..........",
+  "....KGGK..KGGK..........",
+  ".....FF....FF...........",
+  ".....ff....ff...........",
 ];
 const COR_ROBO = {
-  K: "#0f0d16", L: "#eef1f6", M: "#b4bac7", D: "#6b7280", C: "#3a3f4b", c: VERMELHO,
-  E: VERMELHO, e: "#ffb3bd", A: "#38bdf8", F: "#ffb703",
+  K: "#0f0d16", W: "#f6f8fc", L: "#d3d8e2", M: "#9aa2b3", D: "#5d6577", V: "#1a1426",
+  E: VERMELHO, e: "#ffc2cb", G: "#2e3340", c: VERMELHO, A: "#38bdf8", a: "#bae6fd", P: "#8b5cf6",
+  F: "#ffd166", f: "#ff6a1a",
 };
-const PX = 3;
-const CANO_X = 13 * PX + PX / 2;
+const PX = 2;
+const CANO_X = 20 * PX; // meio do cano (entre as colunas 19 e 20 do desenho)
 
 // ---------- geometria ----------
 
@@ -118,7 +130,7 @@ const cy = (l) => TOPO_GRADE + l * PASSO + CELULA / 2;
 // ---------- tempo ----------
 
 const INICIO = 1.0; // antes disso: READY? e os cubos se materializando
-const TICK = 0.11; // segundos por casa andada
+const TICK = 0.16; // segundos por casa andada
 const VOO_LASER = 0.06;
 const RECARGA = 7; // ticks entre tiros
 const TAMANHO = 16; // segmentos da centopeia
@@ -251,23 +263,39 @@ function simular(semanas) {
 
 // ---------- desenho ----------
 
-function desenharSegmento(T) {
+/** Peças da centopeia mecânica. `atraso` desloca pernas e ondulação para formar uma onda pelo corpo. */
+function desenharSegmento(atraso, corPerna) {
+  const d = `style="animation-delay:-${atraso.toFixed(2)}s"`;
+  const d2 = `style="animation-delay:-${(atraso + 0.2).toFixed(2)}s"`;
+  const traco = `stroke="#0f0d16" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
+  const tracoPerna = `stroke="${corPerna}" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
+  const tracoGrosso = traco.replace('stroke-width="1.4"', 'stroke-width="1.7"');
   const pernas =
-    `<g class="pernas" stroke="#0f0d16" stroke-width="1.3" stroke-linecap="round">` +
-    `<line x1="-3" y1="-4" x2="-4.5" y2="-8"/><line x1="3" y1="-4" x2="4.5" y2="-8"/>` +
-    `<line x1="-3" y1="4" x2="-4.5" y2="8"/><line x1="3" y1="4" x2="4.5" y2="8"/></g>`;
+    `<g class="pernaC" ${d}><path ${tracoPerna} d="M-2.5 -4.5 L-4.2 -8.2 L-6.4 -8.8 M2.5 -4.5 L4.2 -8.2 L6.4 -8.8"/>` +
+    `<circle cx="-4.2" cy="-8.2" r=".7" fill="#9aa2b3"/><circle cx="4.2" cy="-8.2" r=".7" fill="#9aa2b3"/></g>` +
+    `<g class="pernaB" ${d2}><path ${tracoPerna} d="M-2.5 4.5 L-4.2 8.2 L-6.4 8.8 M2.5 4.5 L4.2 8.2 L6.4 8.8"/>` +
+    `<circle cx="-4.2" cy="8.2" r=".7" fill="#9aa2b3"/><circle cx="4.2" cy="8.2" r=".7" fill="#9aa2b3"/></g>`;
   const corpo =
-    `<circle r="6" fill="#0f0d16"/><circle r="5.1" fill="#7d8597"/><circle r="5.1" fill="url(#metal)"/>` +
-    `<rect x="-5" y="-.6" width="10" height="1.2" fill="#0f0d16" opacity=".55"/>` +
-    `<circle class="led" r="1.7" fill="${VERMELHO}"/>`;
+    `<ellipse rx="6.7" ry="6.1" fill="#0f0d16"/><ellipse rx="5.9" ry="5.3" fill="url(#casco)"/>` +
+    // placas sobrepostas: duas juntas curvas e os rebites
+    `<path d="M-2.4 -5.1 Q-3.7 0 -2.4 5.1 M2.4 -5.1 Q3.7 0 2.4 5.1" stroke="#0f0d16" stroke-opacity=".4" stroke-width=".9" fill="none"/>` +
+    `<circle cx="-4.3" cy="-1.6" r=".55" fill="#f6f8fc"/><circle cx="4.3" cy="-1.6" r=".55" fill="#f6f8fc"/><circle cx="-4.3" cy="1.8" r=".55" fill="#3b4150"/><circle cx="4.3" cy="1.8" r=".55" fill="#3b4150"/>` +
+    `<ellipse cx="-1.4" cy="-3.3" rx="2.6" ry="1" fill="#ffffff" opacity=".75"/>` +
+    // LED com brilho
+    `<circle r="2.6" fill="#3a0d16"/><circle class="led" ${d} r="1.8" fill="${VERMELHO}" filter="url(#brilho)"/><circle cx="-.6" cy="-.6" r=".55" fill="#ffd6dc"/>`;
   const cabeca =
-    `<g stroke="#0f0d16" stroke-width="1.2" stroke-linecap="round"><line x1="-2" y1="-5" x2="-4.5" y2="-9.5"/><line x1="2" y1="-5" x2="4.5" y2="-9.5"/></g>` +
-    `<circle cx="-4.5" cy="-9.5" r="1.3" fill="${VERMELHO}"/><circle cx="4.5" cy="-9.5" r="1.3" fill="${VERMELHO}"/>` +
-    `<circle r="6.6" fill="#0f0d16"/><circle r="5.8" fill="#c9ced8"/><circle r="5.8" fill="url(#metal)"/>` +
-    `<rect x="-4.2" y="-3" width="8.4" height="2" rx="1" fill="#8b5cf6"/>` +
-    `<rect class="led" x="-3.6" y="-.4" width="2.6" height="2.4" fill="${VERMELHO}"/><rect class="led" x="1" y="-.4" width="2.6" height="2.4" fill="${VERMELHO}"/>` +
-    `<path d="M-2.5 4 L-1 6 M2.5 4 L1 6" stroke="#0f0d16" stroke-width="1.3"/>`;
-  return { pernas, corpo, cabeca };
+    `<g class="antenas" ${d}><path ${traco} d="M-2 -5.6 Q-3.6 -9.4 -6.6 -10.8 M2 -5.6 Q3.6 -9.4 6.6 -10.8"/>` +
+    `<circle cx="-6.6" cy="-10.8" r="1.4" fill="${VERMELHO}" filter="url(#brilho)"/><circle cx="6.6" cy="-10.8" r="1.4" fill="${VERMELHO}" filter="url(#brilho)"/></g>` +
+    `<g class="mandE"><path ${tracoGrosso} d="M-2.6 4.6 Q-4 7.6 -1.3 8.9"/></g>` +
+    `<g class="mandD"><path ${tracoGrosso} d="M2.6 4.6 Q4 7.6 1.3 8.9"/></g>` +
+    `<ellipse rx="7.5" ry="6.9" fill="#0f0d16"/><ellipse rx="6.7" ry="6.1" fill="url(#casco)"/>` +
+    `<path d="M-5.3 -2.2 Q0 -7 5.3 -2.2 L4.2 -.9 Q0 -4.6 -4.2 -.9 Z" fill="#8b5cf6"/><path d="M-3.6 -3.3 Q0 -5.6 3.6 -3.3" stroke="#c4b5fd" stroke-width=".7" fill="none"/>` +
+    `<ellipse cx="-2.7" cy=".7" rx="1.9" ry="1.4" fill="#3a0d16"/><ellipse cx="2.7" cy=".7" rx="1.9" ry="1.4" fill="#3a0d16"/>` +
+    `<g class="led" filter="url(#brilho)"><ellipse cx="-2.7" cy=".7" rx="1.4" ry="1" fill="${VERMELHO}"/><ellipse cx="2.7" cy=".7" rx="1.4" ry="1" fill="${VERMELHO}"/></g>` +
+    `<circle cx="-3.1" cy=".3" r=".45" fill="#ffd6dc"/><circle cx="2.3" cy=".3" r=".45" fill="#ffd6dc"/>` +
+    `<ellipse cx="-2" cy="-4.4" rx="2.4" ry=".8" fill="#ffffff" opacity=".6"/>` +
+    `<path d="M-2.4 3.6 L2.4 3.6" stroke="#0f0d16" stroke-opacity=".6" stroke-width=".9"/>`;
+  return { pernas, corpo, cabeca, d };
 }
 
 function gerarSvg(calendario, tema, hoje) {
@@ -336,12 +364,18 @@ function gerarSvg(calendario, tema, hoje) {
   camadas.chao.push(`<line x1="${MARGEM}" x2="${largura - MARGEM}" y1="${BASE_GRADE + 4.5}" y2="${BASE_GRADE + 4.5}" stroke="${T.linhaZona}" stroke-dasharray="2 4"/>`);
 
   // centopeia
-  const sprite = desenharSegmento(T);
   css.push(
-    `@keyframes pernas{from{transform:scaleY(1)}to{transform:scaleY(.55)}}.pernas{animation:pernas .13s steps(2) infinite alternate;transform-box:fill-box;transform-origin:center}`,
-    `@keyframes led{from{opacity:.55}to{opacity:1}}.led{animation:led .4s ease-in-out infinite alternate}`,
+    // pernas andam em onda (cada segmento atrasado em relação ao da frente) e o corpo ondula
+    `@keyframes pernaC{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}.pernaC{animation:pernaC .4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}`,
+    `@keyframes pernaB{from{transform:rotate(16deg)}to{transform:rotate(-16deg)}}.pernaB{animation:pernaB .4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 0%}`,
+    `@keyframes ondula{from{transform:translateY(-1.2px)}to{transform:translateY(1.2px)}}.ondula{animation:ondula .8s ease-in-out infinite alternate}`,
+    `@keyframes led{from{opacity:.5}to{opacity:1}}.led{animation:led .5s ease-in-out infinite alternate}`,
+    `@keyframes antenas{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}.antenas{animation:antenas .7s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}`,
+    `@keyframes mandE{from{transform:rotate(0)}to{transform:rotate(22deg)}}.mandE{animation:mandE .3s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:100% 0%}`,
+    `@keyframes mandD{from{transform:rotate(0)}to{transform:rotate(-22deg)}}.mandD{animation:mandD .3s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:0% 0%}`,
   );
   for (const s of sim.segs) {
+    const sprite = desenharSegmento(s.id * 0.1, T.perna);
     // só as quinas do caminho viram parada: entre elas o movimento é reto e constante
     const pts = s.pos.map(([c, l], i) => [tempo(i), cx(c), cy(l)]);
     const ultimoTick = s.morte ?? pts.length - 1;
@@ -360,7 +394,7 @@ function gerarSvg(calendario, tema, hoje) {
       const cls = s.cabecaDesde === 0 ? "" : anima([[0, "opacity:0"], [vira, "opacity:0"], [vira + 0.01, "opacity:1"], [ciclo - 0.01, "opacity:1"], [ciclo, "opacity:0"]]);
       cabeca = `<g class="${cls}" style="opacity:${s.cabecaDesde === 0 ? 1 : 0}">${sprite.cabeca}</g>`;
     }
-    camadas.segmentos.unshift(`<g class="${mov}"><g class="${vida}">${sprite.pernas}${sprite.corpo}${cabeca}</g></g>`);
+    camadas.segmentos.unshift(`<g class="${mov}"><g class="${vida}"><g class="ondula" ${sprite.d}>${sprite.pernas}${sprite.corpo}${cabeca}</g></g></g>`);
   }
 
   // tiros e explosões
@@ -445,15 +479,18 @@ function gerarSvg(calendario, tema, hoje) {
 <text x="${largura / 2}" y="${meioY + 13}" font-size="11" letter-spacing="1" fill="${T.hudFraco}">+${total} contribuições</text></g></g>`;
 
   // robô
-  const robo = { corpo: [], olhos: [], chama: [], nucleo: [] };
+  const robo = { corpo: [], olhos: [], chama: [], chama2: [], nucleo: [], cano: [] };
+  const grupo = { E: "olhos", e: "olhos", F: "chama", f: "chama2", A: "nucleo", a: "nucleo", c: "cano" };
   ROBO.forEach((linha, y) => {
     if (linha.length !== ROBO[0].length) throw new Error(`linha do robô com largura errada: ${linha}`);
     [...linha].forEach((ch, x) => {
       if (ch === ".") return;
-      const ret = `<rect x="${x * PX}" y="${y * PX}" width="${PX}" height="${PX}" fill="${COR_ROBO[ch]}"/>`;
-      (ch === "E" || ch === "e" ? robo.olhos : ch === "F" ? robo.chama : ch === "A" ? robo.nucleo : robo.corpo).push(ret);
+      if (!COR_ROBO[ch]) throw new Error(`cor do robô sem definição: ${ch}`);
+      robo[grupo[ch] ?? "corpo"].push(`<rect x="${x * PX}" y="${y * PX}" width="${PX}" height="${PX}" fill="${COR_ROBO[ch]}"/>`);
     });
   });
+  const larguraRobo = ROBO[0].length * PX;
+  const alturaRobo = ROBO.length * PX;
   const xRobo = (c) => (cx(c) - CANO_X).toFixed(1);
   const paradasRobo = [[0, sim.robo[0][0]]];
   for (let i = 1; i < sim.robo.length; i++) {
@@ -471,18 +508,26 @@ function gerarSvg(calendario, tema, hoje) {
   ]);
   css.push(
     `@keyframes flutua{from{transform:translateY(0)}to{transform:translateY(-3px)}}.flutua{animation:flutua .8s ease-in-out infinite alternate}`,
-    `@keyframes chama{from{transform:scaleY(1);opacity:1}to{transform:scaleY(.4);opacity:.65}}.chama{animation:chama .1s steps(2) infinite alternate;transform-box:fill-box;transform-origin:top}`,
+    `@keyframes chama{from{transform:scaleY(1);opacity:1}to{transform:scaleY(.45);opacity:.7}}.chama{animation:chama .1s steps(2) infinite alternate;transform-box:fill-box;transform-origin:top}`,
+    `.chama2{animation:chama .13s steps(2) .05s infinite alternate;transform-box:fill-box;transform-origin:top}`,
+    `@keyframes halo{from{opacity:.55}to{opacity:.9}}.halo{animation:halo 1.4s ease-in-out infinite alternate}`,
     `@keyframes olhos{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.15)}}.olhos{animation:olhos 3.3s infinite;transform-box:fill-box;transform-origin:center}`,
     `@keyframes nucleo{from{opacity:.55}to{opacity:1}}.nucleo{animation:nucleo .5s ease-in-out infinite alternate}`,
     `@media (prefers-reduced-motion:reduce){*{animation:none!important}}`,
   );
   const roboSvg = `<g class="${voo}" style="transform:translateX(${xRobo(sim.robo[0][0])}px)"><g transform="translate(0 ${ROBO_Y})"><g class="flutua"><g class="${recuo}" shape-rendering="crispEdges">
-<g>${robo.corpo.join("")}</g><g class="nucleo">${robo.nucleo.join("")}</g><g class="olhos">${robo.olhos.join("")}</g><g class="chama">${robo.chama.join("")}</g>
+<ellipse class="halo" cx="${larguraRobo / 2}" cy="${alturaRobo / 2}" rx="${larguraRobo * 0.75}" ry="${alturaRobo * 0.7}" fill="url(#halo)" shape-rendering="auto"/>
+<g>${robo.corpo.join("")}</g><g class="nucleo" filter="url(#brilho)">${robo.nucleo.join("")}</g><g class="olhos" filter="url(#brilho)">${robo.olhos.join("")}</g>
+<g filter="url(#brilho)">${robo.cano.join("")}</g><g class="chama2" filter="url(#brilho)">${robo.chama2.join("")}</g><g class="chama" filter="url(#brilho)">${robo.chama.join("")}</g>
 </g></g></g></g>`;
 
   const data = hoje.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${largura}" height="${ALTURA}" viewBox="0 0 ${largura} ${ALTURA}" role="img" aria-label="Centopeia mecânica descendo pelo gráfico de contribuições de ${usuario ?? "GitHub"} enquanto um robô atira nela: ${total} contribuições no último ano">
-<defs><radialGradient id="metal" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity=".85"/><stop offset=".35" stop-color="#ffffff" stop-opacity=".15"/><stop offset="1" stop-color="#000000" stop-opacity=".35"/></radialGradient></defs>
+<defs>
+<linearGradient id="casco" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f6fa"/><stop offset=".45" stop-color="#a9b0bf"/><stop offset="1" stop-color="#4b5263"/></linearGradient>
+<radialGradient id="halo"><stop offset="0" stop-color="#8b5cf6" stop-opacity="${tema === "dark" ? 0.35 : 0.22}"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></radialGradient>
+<filter id="brilho" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1.1" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
 <style>${css.join("")}</style>
 <g shape-rendering="crispEdges">${camadas.estrelas.join("")}</g>
 <g>${camadas.chao.join("")}</g>
