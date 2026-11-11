@@ -74,43 +74,103 @@ const TEMAS = {
 const VERMELHO = "#ff2e4d";
 const EXPLOSAO = ["#fff3b0", "#ffd166", "#ffb703", "#ff8c1a", "#ff5400", "#e63946"];
 
-// Robô original em pixel (24 x 26): antena, visor com dois olhos, núcleo de energia no peito,
-// jetpack embaixo e o canhão no braço direito, apontado para cima.
-const ROBO = [
-  ".......K..........KccK..",
-  ".......P..........KGGK..",
-  ".......K..........KGGK..",
-  "....KKKKKKKK......KGGK..",
-  "...KWWLLLLLMK.....KMLK..",
-  "..KWLLLLLLLMDK....KMLK..",
-  "..KLLKKKKKKKDK....KMLK..",
-  "..KLKVEeVVEeVKK...KMLK..",
-  "..KLKVEEVVEEVKK...KMLK..",
-  "..KMLKKKKKKKDK....KMLK..",
-  "..KMLLLPPLLLDK....KDMK..",
-  "...KDMMMMMMDK.....KDMK..",
-  "....KKKKKKKK......KDMK..",
-  ".....KDMMDK.......KDMK..",
-  "..KKKKKKKKKKKK..KKKMMK..",
-  ".KWLLLLKaaKLLMKKMMMMDK..",
-  ".KLLLLKaAAaKLMDDDDDDK...",
-  ".KLLMMKAAAAKMMDKKKKK....",
-  ".KLMMMKaAAaKMDDK........",
-  ".KMMMMMKaaKMMDK.........",
-  "..KDMMMMMMMMDK..........",
-  "...KKDDDDDDKK...........",
-  "....KGGK..KGGK..........",
-  "....KGGK..KGGK..........",
-  ".....FF....FF...........",
-  ".....ff....ff...........",
+// Robô original em pixel (22 x 24 de corpo + 6 linhas de pernas): antena, capacete com visor de
+// vidro (reflexo e olhos vermelhos atrás), ombreiras roxas, núcleo de energia no peito e
+// propulsores nas costas. Ele segura um rifle de plasma, que é desenhado à parte e gira para mirar.
+const CORPO = [
+  "..........KK..........",
+  "..........KP..........",
+  ".......KKKKKKKK.......",
+  ".....KKWWLLLLLMMKK....",
+  "....KWWLLLLLLLLMMDK...",
+  "....KWLLLLLLLLLMMDK...",
+  "....KLKKKKKKKKKKKDK...",
+  "....KLKvvVVVVVVVKDK...",
+  "....KLKvVEEVVEEVKDK...",
+  "....KLKVVVVVVVVVKDK...",
+  "....KMKKKKKKKKKKKDK...",
+  "....KMMMMPPPPMMMMDK...",
+  ".....KDDMMMMMMDDK.....",
+  ".......KKDDDDKK.......",
+  "..KKKKKKKKKKKKKKKKKK..",
+  ".KPPpKWLLLLLLLLMKPPpK.",
+  ".KPPPKLLLKaaKLLMKPPPK.",
+  ".KKKKKLLKaAAaKMMKKKKK.",
+  "..KMKKLLKAAAAKMDKKMK..",
+  "..KMKKLMKaAAaKMDKKMK..",
+  "..KMKKMMMKaaKMMDKKMK..",
+  "..KMK.KMMMMMMMDK.KMK..",
+  "..KHK.KDDDDDDDDK.KMK..",
+  "...K..KKKKKKKKKK..K...",
+];
+// pernas: parado e dois passos de caminhada
+const PERNAS = {
+  parado: [
+    ".......KMMK.KMMK......",
+    ".......KDMK.KDMK......",
+    ".......KPPK.KPPK......",
+    ".......KMMK.KMMK......",
+    "......KBBBK.KBBBK.....",
+    "......KKKKK.KKKKK.....",
+  ],
+  passoA: [
+    ".......KMMK.KMMK......",
+    "......KDMK..KDMK......",
+    "......KPPK...KPPK.....",
+    ".....KMMK....KMMK.....",
+    "....KBBBK....KBBBK....",
+    "....KKKKK....KKKKK....",
+  ],
+  passoB: [
+    ".......KMMK.KMMK......",
+    ".......KDMK..KDMK.....",
+    "........KPPK.KPPK.....",
+    "........KMMK..KMMK....",
+    "........KBBBK.KBBBK...",
+    "........KKKKK.KKKKK...",
+  ],
+};
+// rifle de plasma apontado para cima (8 x 26); a coluna 4 é o eixo, a mão direita fica na linha 21
+const RIFLE = [
+  "...cc...",
+  "..KccK..",
+  ".KPKKPK.",
+  "..KGGK..",
+  "..KGGK..",
+  "..KGLK..",
+  "..KGGK..",
+  "..KGGK..",
+  "..KGLK..",
+  "..KGGK..",
+  "..KGGK..",
+  ".KKGGKK.",
+  ".KPpPpK.",
+  ".KpPpPK.",
+  ".KPpPpK.",
+  "KKMMMMKK",
+  "KLLMMMDK",
+  "KLMMMMDK",
+  "KHHKKMDK",
+  ".KMMMMK.",
+  "..KMMK..",
+  "..KHHK..",
+  "..KHHK..",
+  "..KDDK..",
+  "..KDDK..",
+  "...KK...",
 ];
 const COR_ROBO = {
-  K: "#0f0d16", W: "#f6f8fc", L: "#d3d8e2", M: "#9aa2b3", D: "#5d6577", V: "#1a1426",
-  E: VERMELHO, e: "#ffc2cb", G: "#2e3340", c: VERMELHO, A: "#38bdf8", a: "#bae6fd", P: "#8b5cf6",
-  F: "#ffd166", f: "#ff6a1a",
+  K: "#0f0d16", W: "#f6f8fc", L: "#d3d8e2", M: "#9aa2b3", D: "#5d6577", B: "#3b4150", H: "#c9ced8",
+  V: "#1b2a4a", v: "#7dd3fc", E: VERMELHO, G: "#2e3340", c: VERMELHO, A: "#38bdf8", a: "#bae6fd",
+  P: "#8b5cf6", p: "#c4b5fd", F: "#ffd166", f: "#ff6a1a",
 };
 const PX = 2;
-const CANO_X = 20 * PX; // meio do cano (entre as colunas 19 e 20 do desenho)
+const ALTURA_ROBO = (CORPO.length + PERNAS.parado.length) * PX;
+const LARGURA_ROBO = CORPO[0].length * PX;
+const PIVO = { x: 21 * PX, y: 21.5 * PX }; // onde a mão direita segura o rifle, ao lado do corpo
+const RIFLE_PIVO = { x: 4 * PX, y: 21.5 * PX }; // o mesmo ponto, no desenho do rifle
+const COMPRIMENTO_RIFLE = RIFLE_PIVO.y; // do eixo até a boca do cano
+const ANGULO_MAX = 58; // graus, para cada lado
 
 // ---------- geometria ----------
 
@@ -122,10 +182,17 @@ const LINHAS_GRADE = 7;
 const LINHA_FUNDO = 10; // a centopeia desce até aqui, já fora da grade, na zona do robô
 const ZONA_TOPO = LINHAS_GRADE; // na zona do robô ela vai e volta entre ZONA_TOPO e LINHA_FUNDO
 const BASE_GRADE = TOPO_GRADE + LINHAS_GRADE * PASSO - (PASSO - CELULA);
-const ROBO_Y = TOPO_GRADE + (LINHA_FUNDO + 1) * PASSO + 4;
-const ALTURA = ROBO_Y + ROBO.length * PX + 30;
+const ROBO_Y = TOPO_GRADE + (LINHA_FUNDO + 1) * PASSO + 2;
+const ALTURA = ROBO_Y + ALTURA_ROBO + 28;
 const cx = (c) => MARGEM + c * PASSO + CELULA / 2;
 const cy = (l) => TOPO_GRADE + l * PASSO + CELULA / 2;
+const PIVO_Y = ROBO_Y + PIVO.y; // altura do eixo do rifle na tela; o eixo fica sempre sobre a coluna do robô
+
+/** Boca do cano quando o eixo está em (px, PIVO_Y) e o rifle gira `graus` (0 = para cima, + = direita). */
+function bocaDoCano(px, graus) {
+  const r = (graus * Math.PI) / 180;
+  return [px + COMPRIMENTO_RIFLE * Math.sin(r), PIVO_Y - COMPRIMENTO_RIFLE * Math.cos(r)];
+}
 
 // ---------- tempo ----------
 
@@ -195,6 +262,9 @@ function simular(semanas) {
   let roboCol = Math.floor(colunas / 2);
   let recarga = 0;
   let tick = 0;
+  let modo = "persegue";
+  let semAlvo = 0;
+  const sorte = aleatorio(colunas * 131 + obstaculo.size);
 
   const ondeEsta = (id) => segs[id].pos.at(-1);
 
@@ -219,24 +289,51 @@ function simular(semanas) {
     }
     for (const s of segs) if (s.morte != null && s.pos.length <= tick) s.pos.push(s.pos.at(-1));
 
-    // 2) o robô persegue o segmento mais baixo e atira quando está na coluna dele.
-    //    Os blocos de commit seguram o tiro: só vale segmento sem bloco entre ele e o robô.
-    const livre = ([c, l]) => {
-      for (let r = l + 1; r < LINHAS_GRADE; r++) if (obstaculo.has(`${c},${r}`)) return false;
-      return true;
+    // 2) o robô alterna dois modos:
+    //    "persegue": anda até a coluna do segmento mais baixo e atira reto para cima;
+    //    "segura": fica onde está, gira o rifle e atira na diagonal, de longe.
+    //    Os blocos de commit seguram o tiro em qualquer ângulo.
+    const vivos = centopeias.flatMap((cp) => cp.corpo).map((id) => ({ id, p: ondeEsta(id) })).filter((v) => v.p[0] >= 0);
+    /** Segue a linha do cano até o alvo e devolve o primeiro segmento atingido (ou null se um bloco segurar). */
+    const linhaDeTiro = (alvo) => {
+      const px = cx(roboCol);
+      const tx = cx(alvo.p[0]), ty = cy(alvo.p[1]);
+      const graus = (Math.atan2(tx - px, PIVO_Y - ty) * 180) / Math.PI;
+      if (Math.abs(graus) > ANGULO_MAX) return null;
+      const [bx, by] = bocaDoCano(px, graus);
+      const dist = Math.hypot(tx - bx, ty - by);
+      for (let s = 0; s <= dist; s += 2) {
+        const x = bx + ((tx - bx) * s) / dist, y = by + ((ty - by) * s) / dist;
+        const atingido = vivos.find((v) => Math.hypot(cx(v.p[0]) - x, cy(v.p[1]) - y) < 6);
+        if (atingido) return { atingido, graus, boca: [bx, by], impacto: [cx(atingido.p[0]), cy(atingido.p[1])] };
+        const c = Math.floor((x - MARGEM) / PASSO), r = Math.floor((y - TOPO_GRADE + 3) / PASSO);
+        const dentro = x - MARGEM - c * PASSO <= CELULA && y - TOPO_GRADE + 3 - r * PASSO <= CELULA + 3;
+        if (dentro && r >= 0 && r < LINHAS_GRADE && obstaculo.has(`${c},${r}`)) return null;
+      }
+      return null;
     };
-    const vivos = centopeias.flatMap((cp) => cp.corpo).map((id) => ({ id, p: ondeEsta(id) })).filter((v) => v.p[0] >= 0 && livre(v.p));
-    if (vivos.length) {
-      const alvo = vivos.reduce((m, v) => (v.p[1] > m.p[1] || (v.p[1] === m.p[1] && Math.abs(v.p[0] - roboCol) < Math.abs(m.p[0] - roboCol)) ? v : m));
-      const passo = Math.max(-1, Math.min(1, alvo.p[0] - roboCol));
-      roboCol += passo;
+    const tirosPossiveis = vivos.map(linhaDeTiro).filter(Boolean);
+    const retos = tirosPossiveis.filter((t) => Math.abs(t.graus) < 4);
+    if (modo === "persegue" && tirosPossiveis.length && sorte() < 0.06) modo = "segura";
+    if (modo === "segura") {
+      semAlvo = tirosPossiveis.length ? 0 : semAlvo + 1;
+      if (semAlvo > 8) modo = "persegue";
+    }
+    if (modo === "persegue") {
+      if (vivos.length) {
+        const alvo = vivos.reduce((m, v) => (v.p[1] > m.p[1] || (v.p[1] === m.p[1] && Math.abs(v.p[0] - roboCol) < Math.abs(m.p[0] - roboCol)) ? v : m));
+        roboCol += Math.max(-1, Math.min(1, alvo.p[0] - roboCol));
+      }
     }
     robo.push([roboCol, tick]);
     if (recarga > 0) recarga--;
-    const naColuna = vivos.filter((v) => v.p[0] === roboCol);
-    if (recarga === 0 && naColuna.length) {
-      const atingido = naColuna.reduce((m, v) => (v.p[1] > m.p[1] ? v : m));
+    const opcoes = modo === "persegue" ? retos : tirosPossiveis;
+    if (recarga === 0 && opcoes.length) {
+      // prefere o mais baixo (mais perto do robô)
+      const tiro = opcoes.reduce((m, t) => (t.impacto[1] > m.impacto[1] ? t : m));
+      const atingido = tiro.atingido;
       recarga = RECARGA;
+      if (sorte() < 0.5) modo = modo === "persegue" ? "segura" : "persegue";
       const seg = segs[atingido.id];
       seg.morte = tick;
       // separa a centopeia onde o segmento caiu
@@ -255,7 +352,7 @@ function simular(semanas) {
         }
       }
       centopeias = novas;
-      tiros.push({ tick, col: roboCol, linha: atingido.p[1], cabeca: segs[atingido.id].cabecaDesde != null });
+      tiros.push({ tick, graus: tiro.graus, boca: tiro.boca, impacto: tiro.impacto, cabeca: segs[atingido.id].cabecaDesde != null });
     }
   }
   return { segs, tiros, robo, fim: tick };
@@ -402,9 +499,9 @@ function gerarSvg(calendario, tema, hoje) {
   for (const tiro of sim.tiros) {
     const t = tempo(tiro.tick);
     const impacto = t + VOO_LASER;
-    const x = cx(tiro.col);
-    const y = cy(tiro.linha);
-    const distancia = ROBO_Y - y;
+    const [bx, by] = tiro.boca;
+    const [x, y] = tiro.impacto;
+    const distancia = Math.max(0, Math.hypot(x - bx, y - by) - 8).toFixed(1);
     const laser = anima([
       [0, "opacity:0;transform:translateY(0)"],
       [t, "opacity:0;transform:translateY(0)"],
@@ -414,12 +511,12 @@ function gerarSvg(calendario, tema, hoje) {
       [ciclo, "opacity:0;transform:translateY(0)"],
     ]);
     camadas.lasers.push(
-      `<g transform="translate(${x} ${ROBO_Y})"><g class="${laser}" style="opacity:0">` +
+      `<g transform="translate(${bx.toFixed(1)} ${by.toFixed(1)}) rotate(${tiro.graus.toFixed(1)})"><g class="${laser}" style="opacity:0">` +
         `<rect x="-3.5" y="-2" width="7" height="18" rx="3.5" fill="${VERMELHO}" opacity=".35"/>` +
         `<rect x="-1.5" y="0" width="3" height="14" rx="1.5" fill="${VERMELHO}"/><rect x="-.5" y="1" width="1" height="7" fill="#ffd0d6"/></g></g>`,
     );
     const cano = anima([[0, "opacity:0"], [t, "opacity:0"], [t + 0.01, "opacity:1"], [t + 0.09, "opacity:0"], [ciclo, "opacity:0"]]);
-    camadas.lasers.push(`<g class="${cano}" style="opacity:0"><circle cx="${x}" cy="${ROBO_Y - 1}" r="4" fill="#ffd0d6"/><circle cx="${x}" cy="${ROBO_Y - 1}" r="2" fill="#fff"/></g>`);
+    camadas.lasers.push(`<g class="${cano}" style="opacity:0" filter="url(#brilho)"><circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="4.5" fill="#d8b4fe"/><circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="2.2" fill="#fff"/></g>`);
     const escala = tiro.cabeca ? 2.6 : 2.1;
     const dur = tiro.cabeca ? 0.7 : 0.5;
     const exp = anima([[0, "opacity:0;transform:scale(.2)"], [impacto, "opacity:0;transform:scale(.2)"], [impacto + 0.01, "opacity:1;transform:scale(.35)"], [impacto + dur, `opacity:0;transform:scale(${escala})`], [ciclo, "opacity:0;transform:scale(.2)"]]);
@@ -479,19 +576,62 @@ function gerarSvg(calendario, tema, hoje) {
 <text x="${largura / 2}" y="${meioY + 13}" font-size="11" letter-spacing="1" fill="${T.hudFraco}">+${total} contribuições</text></g></g>`;
 
   // robô
-  const robo = { corpo: [], olhos: [], chama: [], chama2: [], nucleo: [], cano: [] };
-  const grupo = { E: "olhos", e: "olhos", F: "chama", f: "chama2", A: "nucleo", a: "nucleo", c: "cano" };
-  ROBO.forEach((linha, y) => {
-    if (linha.length !== ROBO[0].length) throw new Error(`linha do robô com largura errada: ${linha}`);
-    [...linha].forEach((ch, x) => {
-      if (ch === ".") return;
-      if (!COR_ROBO[ch]) throw new Error(`cor do robô sem definição: ${ch}`);
-      robo[grupo[ch] ?? "corpo"].push(`<rect x="${x * PX}" y="${y * PX}" width="${PX}" height="${PX}" fill="${COR_ROBO[ch]}"/>`);
+  /** Transforma um desenho de letras em retângulos, separados por grupo de animação. */
+  const pixels = (desenho, grupos = {}, dy = 0) => {
+    const saida = { base: [] };
+    desenho.forEach((linha, y) => {
+      if (linha.length !== desenho[0].length) throw new Error(`linha com largura errada: ${linha}`);
+      [...linha].forEach((ch, x) => {
+        if (ch === ".") return;
+        if (!COR_ROBO[ch]) throw new Error(`cor do robô sem definição: ${ch}`);
+        const g = grupos[ch] ?? "base";
+        (saida[g] ??= []).push(`<rect x="${x * PX}" y="${(y + dy) * PX}" width="${PX}" height="${PX}" fill="${COR_ROBO[ch]}"/>`);
+      });
     });
-  });
-  const larguraRobo = ROBO[0].length * PX;
-  const alturaRobo = ROBO.length * PX;
-  const xRobo = (c) => (cx(c) - CANO_X).toFixed(1);
+    for (const k of Object.keys(saida)) saida[k] = saida[k].join("");
+    return saida;
+  };
+  const corpo = pixels(CORPO, { E: "olhos", A: "nucleo", a: "nucleo", v: "reflexo" });
+  const pernas = Object.fromEntries(Object.entries(PERNAS).map(([k, d]) => [k, pixels(d, {}, CORPO.length).base]));
+  const rifle = pixels(RIFLE, { P: "bobina", p: "bobina", c: "boca" });
+  // propulsores nas costas: bocal dos dois lados, logo abaixo das ombreiras
+  const bocal = [0, 21].map((x) => `<rect x="${x * PX}" y="${18 * PX}" width="${PX}" height="${PX * 2}" fill="${COR_ROBO.G}"/>`).join("");
+  const fogo = (cor, y) => [0, 21].map((x) => `<rect x="${x * PX}" y="${y * PX}" width="${PX}" height="${PX}" fill="${cor}"/>`).join("");
+  const larguraRobo = LARGURA_ROBO;
+  const alturaRobo = ALTURA_ROBO;
+  const xRobo = (c) => (cx(c) - PIVO.x).toFixed(1);
+
+  // anda quando muda de coluna; parado, mostra as pernas juntas
+  const movendo = sim.robo.map(([c], i) => i > 0 && c !== sim.robo[i - 1][0]);
+  const trocasPernas = [[0, false]];
+  movendo.forEach((m, i) => { if (m !== trocasPernas.at(-1)[1]) trocasPernas.push([tempo(sim.robo[i][1]) - TICK, m]); });
+  const andando = anima([
+    [0, "opacity:0"],
+    ...trocasPernas.slice(1).flatMap(([t, m]) => [[t, `opacity:${m ? 0 : 1}`], [t + 0.01, `opacity:${m ? 1 : 0}`]]),
+    [FIM, "opacity:0"],
+    [ciclo, "opacity:0"],
+  ]);
+  const parado = anima([
+    [0, "opacity:1"],
+    ...trocasPernas.slice(1).flatMap(([t, m]) => [[t, `opacity:${m ? 1 : 0}`], [t + 0.01, `opacity:${m ? 0 : 1}`]]),
+    [FIM, "opacity:1"],
+    [ciclo, "opacity:1"],
+  ]);
+
+  // o rifle gira para mirar um pouco antes de cada tiro, e a bobina carrega
+  let anguloAnterior = 0;
+  const mira = [[0, "transform:rotate(0deg)"]];
+  const carga = [[0, "opacity:.45"]];
+  for (const tiro of sim.tiros) {
+    const t = tempo(tiro.tick);
+    mira.push([t - 0.3, `transform:rotate(${anguloAnterior.toFixed(1)}deg)`], [t - 0.05, `transform:rotate(${tiro.graus.toFixed(1)}deg)`]);
+    carga.push([t - 0.4, "opacity:.45"], [t - 0.02, "opacity:1"], [t + 0.2, "opacity:.45"]);
+    anguloAnterior = tiro.graus;
+  }
+  mira.push([FIM, `transform:rotate(${anguloAnterior.toFixed(1)}deg)`], [ciclo, "transform:rotate(0deg)"]);
+  carga.push([ciclo, "opacity:.45"]);
+  const miraCls = anima(mira);
+  const cargaCls = anima(carga);
   const paradasRobo = [[0, sim.robo[0][0]]];
   for (let i = 1; i < sim.robo.length; i++) {
     const a = sim.robo[i - 1][0], b = sim.robo[i][0], d = sim.robo[i + 1]?.[0];
@@ -502,24 +642,34 @@ function gerarSvg(calendario, tema, hoje) {
     [0, "transform:translateY(0)"],
     ...sim.tiros.flatMap((tiro) => {
       const t = tempo(tiro.tick);
-      return [[t, "transform:translateY(0)"], [t + 0.02, "transform:translateY(3px)"], [t + 0.1, "transform:translateY(0)"]];
+      return [[t, "transform:translateY(0)"], [t + 0.02, "transform:translateY(2px)"], [t + 0.12, "transform:translateY(0)"]];
     }),
     [ciclo, "transform:translateY(0)"],
   ]);
   css.push(
-    `@keyframes flutua{from{transform:translateY(0)}to{transform:translateY(-3px)}}.flutua{animation:flutua .8s ease-in-out infinite alternate}`,
-    `@keyframes chama{from{transform:scaleY(1);opacity:1}to{transform:scaleY(.45);opacity:.7}}.chama{animation:chama .1s steps(2) infinite alternate;transform-box:fill-box;transform-origin:top}`,
-    `.chama2{animation:chama .13s steps(2) .05s infinite alternate;transform-box:fill-box;transform-origin:top}`,
+    `@keyframes respira{from{transform:translateY(0)}to{transform:translateY(-1px)}}.respira{animation:respira .9s ease-in-out infinite alternate}`,
+    `@keyframes chama{from{opacity:1}to{opacity:.35}}.chama{animation:chama .1s steps(2) infinite alternate}.chama2{animation:chama .13s steps(2) .05s infinite alternate}`,
+    `@keyframes passoA{0%,49%{opacity:1}50%,100%{opacity:0}}.passoA{animation:passoA .32s infinite}`,
+    `@keyframes passoB{0%,49%{opacity:0}50%,100%{opacity:1}}.passoB{animation:passoB .32s infinite}`,
+    `@keyframes reflexo{0%,70%{opacity:.5}85%{opacity:1}100%{opacity:.5}}.reflexo{animation:reflexo 2.6s infinite}`,
     `@keyframes halo{from{opacity:.55}to{opacity:.9}}.halo{animation:halo 1.4s ease-in-out infinite alternate}`,
     `@keyframes olhos{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.15)}}.olhos{animation:olhos 3.3s infinite;transform-box:fill-box;transform-origin:center}`,
     `@keyframes nucleo{from{opacity:.55}to{opacity:1}}.nucleo{animation:nucleo .5s ease-in-out infinite alternate}`,
     `@media (prefers-reduced-motion:reduce){*{animation:none!important}}`,
   );
-  const roboSvg = `<g class="${voo}" style="transform:translateX(${xRobo(sim.robo[0][0])}px)"><g transform="translate(0 ${ROBO_Y})"><g class="flutua"><g class="${recuo}" shape-rendering="crispEdges">
-<ellipse class="halo" cx="${larguraRobo / 2}" cy="${alturaRobo / 2}" rx="${larguraRobo * 0.75}" ry="${alturaRobo * 0.7}" fill="url(#halo)" shape-rendering="auto"/>
-<g>${robo.corpo.join("")}</g><g class="nucleo" filter="url(#brilho)">${robo.nucleo.join("")}</g><g class="olhos" filter="url(#brilho)">${robo.olhos.join("")}</g>
-<g filter="url(#brilho)">${robo.cano.join("")}</g><g class="chama2" filter="url(#brilho)">${robo.chama2.join("")}</g><g class="chama" filter="url(#brilho)">${robo.chama.join("")}</g>
-</g></g></g></g>`;
+  const roboSvg = `<g class="${voo}" style="transform:translateX(${xRobo(sim.robo[0][0])}px)"><g transform="translate(0 ${ROBO_Y})">
+<ellipse class="halo" cx="${larguraRobo / 2}" cy="${alturaRobo / 2}" rx="${larguraRobo * 0.8}" ry="${alturaRobo * 0.62}" fill="url(#halo)"/>
+<ellipse cx="${larguraRobo / 2}" cy="${alturaRobo + 1}" rx="${larguraRobo * 0.42}" ry="2.6" fill="#000" opacity="${tema === "dark" ? 0.5 : 0.22}"/>
+<g class="${recuo}"><g shape-rendering="crispEdges">
+<g class="${parado}">${pernas.parado}</g>
+<g class="${andando}" style="opacity:0"><g class="passoA">${pernas.passoA}</g><g class="passoB">${pernas.passoB}</g></g>
+<g class="respira">
+${bocal}<g class="chama" filter="url(#brilho)">${fogo(COR_ROBO.F, 20)}</g><g class="chama2" filter="url(#brilho)">${fogo(COR_ROBO.f, 21)}</g>
+${corpo.base}<g class="reflexo">${corpo.reflexo}</g><g class="nucleo" filter="url(#brilho)">${corpo.nucleo}</g><g class="olhos" filter="url(#brilho)">${corpo.olhos}</g>
+<g transform="translate(${PIVO.x} ${PIVO.y})"><g class="${miraCls}"><g transform="translate(${-RIFLE_PIVO.x} ${-RIFLE_PIVO.y})">
+${rifle.base}<g class="${cargaCls}" filter="url(#brilho)">${rifle.bobina}</g><g filter="url(#brilho)">${rifle.boca}</g>
+</g></g></g>
+</g></g></g></g></g>`;
 
   const data = hoje.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${largura}" height="${ALTURA}" viewBox="0 0 ${largura} ${ALTURA}" role="img" aria-label="Centopeia mecânica descendo pelo gráfico de contribuições de ${usuario ?? "GitHub"} enquanto um robô atira nela: ${total} contribuições no último ano">
