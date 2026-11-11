@@ -73,5 +73,3 @@ Engenheiro de IA na **Controller Automotive**, em São José dos Campos/SP. Colo
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/centopeia-light.svg">
   <img alt="Uma centopeia mecânica desce em zigue-zague pelo meu gráfico de contribuições, desviando dos dias com commit, e um robô atira nela lá de baixo" src="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/centopeia-dark.svg">
 </picture>
-
-Cada dia com commit vira um bloco 3D no meu gráfico de contribuições. Uma centopeia mecânica desce em zigue-zague desviando deles, e um robô atira nela lá de baixo: o segmento atingido explode, e ela se parte em duas. Os blocos seguram o tiro. Tudo é desenhado por um [script deste repositório](scripts/centopeia.mjs) e se atualiza sozinho a cada 6 horas. Boa parte do meu trabalho fica em repositórios privados, então o gráfico conta mais do que a lista de repos.
