@@ -10,6 +10,7 @@
 // Saída: centopeia-dark.svg e centopeia-light.svg na pasta --saida.
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const args = Object.fromEntries(
@@ -272,21 +273,39 @@ function simular(semanas) {
 
   while (centopeias.length && tick < MAX_TICKS) {
     tick++;
-    // 1) anda: a cabeça decide, o corpo segue
+    // 1) anda: a cabeça decide, o corpo segue. Casa ocupada por outro pedaço conta como obstáculo,
+    //    para um corpo nunca passar por cima de outro depois que a centopeia se parte.
+    const ocupada = new Set();
+    for (const cp of centopeias) for (const id of cp.corpo) { const [c, l] = ondeEsta(id); if (c >= 0) ocupada.add(`${c},${l}`); }
+    const livreDeCorpo = (c, l) => c < 0 || !ocupada.has(`${c},${l}`);
     for (const cp of centopeias) {
       const anteriores = cp.corpo.map(ondeEsta);
       const [hc, hl] = anteriores[0];
-      let prox;
+      const cauda = anteriores.at(-1);
+      ocupada.delete(`${cauda[0]},${cauda[1]}`); // a cauda sai da casa dela neste passo
+      let prox = null;
       const entrando = hc < 0; // ainda fora da tela pela esquerda: só avança
-      if (entrando || !bloqueado(hc + cp.dir, hl)) {
+      if (entrando || (!bloqueado(hc + cp.dir, hl) && livreDeCorpo(hc + cp.dir, hl))) {
         prox = [hc + cp.dir, hl];
       } else {
-        let nl = hl + cp.vdir;
-        if (nl > cp.fundo) { cp.vdir = -1; nl = hl - 1; }
-        if (nl < 0) { cp.vdir = 1; nl = hl + 1; }
-        prox = [hc, nl];
-        cp.dir = -cp.dir;
+        // desce (ou sobe) uma linha e inverte; se a linha estiver ocupada, tenta o outro lado
+        for (const v of [cp.vdir, -cp.vdir]) {
+          const nl = hl + v;
+          if (nl < 0 || nl > cp.fundo || !livreDeCorpo(hc, nl)) continue;
+          cp.vdir = v;
+          prox = [hc, nl];
+          cp.dir = -cp.dir;
+          break;
+        }
       }
+      if (!prox) {
+        // sem saída: espera este passo parado, no mesmo lugar
+        ocupada.add(`${cauda[0]},${cauda[1]}`);
+        cp.corpo.forEach((id, i) => segs[id].pos.push(anteriores[i]));
+        cp.dir = -cp.dir; // no próximo passo tenta o outro sentido
+        continue;
+      }
+      ocupada.add(`${prox[0]},${prox[1]}`);
       cp.corpo.forEach((id, i) => segs[id].pos.push(i === 0 ? prox : anteriores[i - 1]));
     }
     for (const s of segs) if (s.morte != null && s.pos.length <= tick) s.pos.push(s.pos.at(-1));
@@ -366,7 +385,20 @@ function simular(semanas) {
       tiros.push({ tick, graus: tiro.graus, boca: tiro.boca, impacto: tiro.impacto, cabeca: segs[atingido.id].cabecaDesde != null });
     }
   }
-  if (args.debug) console.error(`ticks=${tick} tiros=${tiros.length} vivos=${centopeias.reduce((n, cp) => n + cp.corpo.length, 0)} max_pedacos=${maxPedacos}`);
+  if (args.debug) {
+    // confere se dois segmentos vivos dividiram a mesma casa em algum passo
+    let sobrepostos = 0;
+    for (let t = 0; t <= tick; t++) {
+      const casas = new Map();
+      for (const s of segs) {
+        if ((s.morte != null && t >= s.morte) || !s.pos[t] || s.pos[t][0] < 0) continue;
+        const k = s.pos[t].join(",");
+        casas.set(k, (casas.get(k) ?? 0) + 1);
+      }
+      for (const n of casas.values()) if (n > 1) sobrepostos++;
+    }
+    writeFileSync(args.debug, `ticks=${tick} tiros=${tiros.length} vivos=${centopeias.reduce((n, cp) => n + cp.corpo.length, 0)} max_pedacos=${maxPedacos} sobreposicoes=${sobrepostos}\n`);
+  }
   return { segs, tiros, robo, fim: tick };
 }
 
