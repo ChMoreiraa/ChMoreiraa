@@ -3,7 +3,7 @@
 // cai até o dia certo do calendário, e o gráfico de contribuições vai se montando a cada abate.
 // Um inimigo por dia com commit. Comandantes (dias de mais commits) aguentam dois tiros.
 //
-// Uma nave só, a não ser que ela demore demais (ciclo acima de LIMITE_UMA_NAVE): aí entram duas.
+// Duas naves lá embaixo, cada uma cuidando de um lado da formação.
 //
 // Uso:
 //   GITHUB_TOKEN=... node scripts/frota.mjs --usuario ChMoreiraa --saida dist
@@ -245,7 +245,6 @@ const DUR_RETORNO = 1.1;
 const POR_ONDA = 24;
 const PAUSA_ONDA = 1.6;
 const DUR_QUEDA = 0.85; // bloco caindo até a casa do dia
-const LIMITE_UMA_NAVE = 42; // segundos de jogo; passou disso, entram duas naves
 const MAX_TEMPO = 160;
 
 let largura = 0;
@@ -908,14 +907,9 @@ largura = MARGEM * 2 + calendario.weeks.length * PASSO - (PASSO - CELULA);
 await mkdir(saida, { recursive: true });
 const hoje = new Date();
 
-// uma nave, se der conta a tempo; senão, duas
-let naves = args.naves ? Number(args.naves) : 1;
+// duas naves, cada uma cuidando de um lado (pedido de 12/11/2026)
+const naves = args.naves ? Number(args.naves) : 2;
 const resumo = [];
-if (!args.naves) {
-  const teste = gerarSvg(calendario, "dark", hoje, 1);
-  resumo.push(`1 nave: fim=${teste.sim.fim.toFixed(1)}s ciclo=${ciclo}s timeout=${teste.sim.timeout}`);
-  if (teste.sim.fim > LIMITE_UMA_NAVE || teste.sim.timeout) naves = 2;
-}
 for (const tema of Object.keys(TEMAS)) {
   const { svg, sim, dias } = gerarSvg(calendario, tema, hoje, naves);
   const arquivo = join(saida, `frota-${tema}.svg`);
