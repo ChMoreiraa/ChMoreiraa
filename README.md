@@ -68,8 +68,9 @@ Engenheiro de IA na **Controller Automotive**, em São José dos Campos/SP. Colo
 
 ### Atividade
 
+<!-- Para voltar à centopeia: troque "frota-" por "centopeia-" nas três URLs abaixo (o workflow gera as duas). -->
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/centopeia-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/centopeia-light.svg">
-  <img alt="Uma centopeia mecânica desce em zigue-zague pelo meu gráfico de contribuições, desviando dos dias com commit, e um robô atira nela lá de baixo" src="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/centopeia-dark.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/frota-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/frota-light.svg">
+  <img alt="Uma frota alienígena ataca em ondas e uma nave atira nela lá de baixo; cada inimigo abatido vira um dia do meu gráfico de contribuições, que começa vazio e vai se montando" src="https://raw.githubusercontent.com/ChMoreiraa/ChMoreiraa/output/frota-dark.svg">
 </picture>
