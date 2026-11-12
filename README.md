@@ -8,6 +8,16 @@
 </p>
 
 <p align="center">
+  <a href="https://chmoreira.netlify.app/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="assets/placa-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="assets/placa-light.svg">
+      <img src="assets/placa-dark.svg" alt="Meu portfólio: chmoreira.netlify.app" width="440" />
+    </picture>
+  </a>
+</p>
+
+<p align="center">
   <a href="https://www.linkedin.com/in/carlos-henrique-moreira-gon%C3%A7alves-b2720b323/"><img src="https://img.shields.io/badge/LinkedIn-Carlos%20Henrique-EDEDF0?style=for-the-badge&logo=linkedin&logoColor=A78BFA&labelColor=15131C&color=15131C" alt="LinkedIn" /></a>
   <a href="mailto:ch.moreiragoncalves26@gmail.com"><img src="https://img.shields.io/badge/E--mail-ch.moreiragoncalves26%40gmail.com-EDEDF0?style=for-the-badge&logo=gmail&logoColor=A78BFA&labelColor=15131C&color=15131C" alt="E-mail" /></a>
 </p>
